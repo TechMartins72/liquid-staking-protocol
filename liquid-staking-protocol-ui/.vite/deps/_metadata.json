@@ -1,0 +1,67 @@
+{
+  "hash": "3d8ac26b",
+  "configHash": "00c7c2c6",
+  "lockfileHash": "100048c0",
+  "browserHash": "70c162e7",
+  "optimized": {
+    "buffer": {
+      "src": "../../node_modules/.pnpm/buffer@6.0.3/node_modules/buffer/index.js",
+      "file": "buffer.js",
+      "fileHash": "e014fc94",
+      "needsInterop": true
+    },
+    "react": {
+      "src": "../../node_modules/.pnpm/react@19.2.0/node_modules/react/index.js",
+      "file": "react.js",
+      "fileHash": "0257a7e3",
+      "needsInterop": true
+    },
+    "react-dom": {
+      "src": "../../node_modules/.pnpm/react-dom@19.2.0_react@19.2.0/node_modules/react-dom/index.js",
+      "file": "react-dom.js",
+      "fileHash": "d95e44fe",
+      "needsInterop": true
+    },
+    "react/jsx-dev-runtime": {
+      "src": "../../node_modules/.pnpm/react@19.2.0/node_modules/react/jsx-dev-runtime.js",
+      "file": "react_jsx-dev-runtime.js",
+      "fileHash": "ced74876",
+      "needsInterop": true
+    },
+    "react/jsx-runtime": {
+      "src": "../../node_modules/.pnpm/react@19.2.0/node_modules/react/jsx-runtime.js",
+      "file": "react_jsx-runtime.js",
+      "fileHash": "d4a34661",
+      "needsInterop": true
+    },
+    "lucide-react": {
+      "src": "../../node_modules/.pnpm/lucide-react@0.541.0_react@19.2.0/node_modules/lucide-react/dist/esm/lucide-react.js",
+      "file": "lucide-react.js",
+      "fileHash": "48eca64b",
+      "needsInterop": false
+    },
+    "react-dom/client": {
+      "src": "../../node_modules/.pnpm/react-dom@19.2.0_react@19.2.0/node_modules/react-dom/client.js",
+      "file": "react-dom_client.js",
+      "fileHash": "ddae7838",
+      "needsInterop": true
+    },
+    "recharts": {
+      "src": "../../node_modules/.pnpm/recharts@3.3.0_@types+react@19.2.2_react-dom@19.2.0_react@19.2.0__react-is@19.2.0_react@19.2.0_redux@5.0.1/node_modules/recharts/es6/index.js",
+      "file": "recharts.js",
+      "fileHash": "a44a6838",
+      "needsInterop": false
+    }
+  },
+  "chunks": {
+    "chunk-KCLL6K7K": {
+      "file": "chunk-KCLL6K7K.js"
+    },
+    "chunk-ZF7FVN6S": {
+      "file": "chunk-ZF7FVN6S.js"
+    },
+    "chunk-G3PMV62Z": {
+      "file": "chunk-G3PMV62Z.js"
+    }
+  }
+}
