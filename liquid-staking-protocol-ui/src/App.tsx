@@ -1,18 +1,16 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import Dashboard from "./components/Dashboard";
 import Footer from "./components/Footer";
 import Header from "./components/Header";
 import StakingModal from "./components/StakingModal";
 import NotificationCenter from "./components/NotificationCenter";
-
-export type NotificationType = "success" | "error" | null;
+import { DappContext } from "./contextProviders/DappContextProvider";
+import HistoryPage from "./components/History";
+import StakeDetailPage from "./components/StakeDetails";
 
 function App() {
+  const { notification, setNotification, route } = useContext(DappContext)!;
   const [isStakingOpen, setIsStakingOpen] = useState(false);
-  const [notification, setNotification] = useState<{
-    type: NotificationType;
-    message: string;
-  } | null>(null);
 
   const handleStakeClick = () => setIsStakingOpen(true);
 
@@ -25,16 +23,15 @@ function App() {
   return (
     <>
       <Header />
-      <Dashboard onStakeClick={handleStakeClick} />
+      {route === "dashboard" && <Dashboard onStakeClick={handleStakeClick} />}
+      {route === "history" && <HistoryPage />}
+      {route === "stakedetails" && <StakeDetailPage />}
       <StakingModal
         isOpen={isStakingOpen}
         onClose={() => setIsStakingOpen(false)}
         onComplete={handleStakingComplete}
       />
-      <NotificationCenter
-        notification={notification}
-        onClose={() => setNotification(null)}
-      />
+      <NotificationCenter notification={notification} />
       <Footer />
     </>
   );

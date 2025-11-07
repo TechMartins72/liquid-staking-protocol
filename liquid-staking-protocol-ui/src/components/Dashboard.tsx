@@ -11,6 +11,9 @@ import {
 } from "recharts";
 import { TrendingUp, Zap, Lock, ArrowUpRight } from "lucide-react";
 import StatsCard from "./StatsCard";
+import useWalletManagement from "../customHooks/useWalletManagement";
+import { useContext } from "react";
+import { DappContext } from "../contextProviders/DappContextProvider";
 
 interface DashboardProps {
   onStakeClick: () => void;
@@ -36,6 +39,11 @@ const rewardsData = [
 ];
 
 const Dashboard = ({ onStakeClick }: DashboardProps) => {
+  const {
+    walletState: { connectionSuccess },
+  } = useWalletManagement();
+  const { setNotification } = useContext(DappContext)!;
+
   return (
     <div className="flex flex-col min-h-screen">
       <main className="flex-1 px-4 py-8 md:px-8">
@@ -52,7 +60,14 @@ const Dashboard = ({ onStakeClick }: DashboardProps) => {
                 </p>
               </div>
               <button
-                onClick={onStakeClick}
+                onClick={() => {
+                  connectionSuccess
+                    ? onStakeClick()
+                    : setNotification({
+                        type: "error",
+                        message: "Connect wallet to stake",
+                      });
+                }}
                 className="px-8 py-3 bg-accent text-accent-foreground rounded-xl font-semibold hover:shadow-lg hover:glow-accent-hover transition-all duration-300 flex items-center gap-2 whitespace-nowrap cursor-pointer"
               >
                 <Zap className="w-5 h-5" />
@@ -65,7 +80,7 @@ const Dashboard = ({ onStakeClick }: DashboardProps) => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <StatsCard
               title="Total Staked"
-              value="245.82 ETH"
+              value="245.82 tDUST"
               change="+12.5%"
               icon={<Lock className="w-5 h-5 text-accent" />}
             />
@@ -77,7 +92,7 @@ const Dashboard = ({ onStakeClick }: DashboardProps) => {
             />
             <StatsCard
               title="Total Rewards"
-              value="12.48 ETH"
+              value="12.48 tDUST"
               change="+8.3%"
               icon={<ArrowUpRight className="w-5 h-5 text-accent" />}
             />

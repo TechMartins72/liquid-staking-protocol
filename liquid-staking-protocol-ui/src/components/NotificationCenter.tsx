@@ -1,19 +1,18 @@
 import { Check, X, AlertCircle } from "lucide-react";
-import { useEffect, useState } from "react";
-import type { NotificationType } from "../App";
+import { useContext, useEffect, useState } from "react";
+import type { NotificationType } from "../lib/types";
+import { DappContext } from "../contextProviders/DappContextProvider";
 
 interface NotificationCenterProps {
   notification: {
     type: NotificationType;
     message: string;
   } | null;
-  onClose: () => void;
 }
 
-const NotificationCenter = ({
-  notification,
-  onClose,
-}: NotificationCenterProps) => {
+const NotificationCenter = ({ notification }: NotificationCenterProps) => {
+  const { setNotification } = useContext(DappContext)!;
+
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
@@ -65,13 +64,13 @@ const NotificationCenter = ({
           >
             {notification.type === "success" ? "Success" : "Error"}
           </p>
-          <p className="text-sm text-muted-foreground mt-1">
+          <p className="text-sm text-white mt-1">
             {notification.message}
           </p>
         </div>
 
         <button
-          onClick={onClose}
+          onClick={() => setNotification(null)}
           className="text-muted-foreground hover:text-foreground transition-all cursor-pointer"
         >
           <X className="w-5 h-5" />

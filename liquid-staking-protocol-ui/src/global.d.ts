@@ -6,7 +6,7 @@ declare global {
       mnLace?: {
         enable: () => Promise<any>;
         isEnabled: () => Promise<boolean>;
-        state: () => Promise<{ address?: string }>;
+        state: () => Promise<{ address: string }>;
       };
     };
   }

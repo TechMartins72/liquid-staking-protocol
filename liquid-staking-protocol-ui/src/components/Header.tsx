@@ -1,17 +1,17 @@
-import { Wallet, Settings, History } from "lucide-react";
+import { Wallet, Settings, History, LogOut } from "lucide-react";
 import useWalletManagement from "../customHooks/useWalletManagement";
+import { DappContext } from "../contextProviders/DappContextProvider";
+import { useContext } from "react";
 
 const Header = () => {
   const {
-    // error,
-    // success,
     handleConnect,
-    // handleDisconnect,
-    // walletAddress,
-    // isConnected,
+    handleDisconnect,
+    isConnecting,
+    walletAddress,
+    walletState: { connectionSuccess },
   } = useWalletManagement();
-  const pathname = "/";
-  const pathname2 = "/history";
+  const { setRoute, route } = useContext(DappContext)!;
 
   return (
     <header className="border-b border-border/50 bg-background/80 backdrop-blur-sm sticky top-0 z-40">
@@ -23,11 +23,14 @@ const Header = () => {
           <h1 className="text-2xl font-bold text-foreground">LiquidStake</h1>
         </div>
 
-        <div className="flex items-center gap-6">
+        <div className="flex items-center gap-4">
           <div className="flex items-center gap-4">
             <button
+              onClick={() => {
+                setRoute("dashboard");
+              }}
               className={`px-4 py-2 rounded-lg transition-all cursor-pointer ${
-                pathname === "/"
+                route === "dashboard"
                   ? "bg-accent/20 text-accent"
                   : "text-muted-foreground hover:text-accent"
               }`}
@@ -35,8 +38,11 @@ const Header = () => {
               Dashboard
             </button>
             <button
+              onClick={() => {
+                setRoute("history");
+              }}
               className={`px-4 py-2 rounded-lg transition-all flex items-center gap-2 cursor-pointer ${
-                pathname2 === "/history"
+                route === "history"
                   ? "bg-accent/20 text-accent"
                   : "text-muted-foreground hover:text-accent"
               }`}
@@ -53,8 +59,20 @@ const Header = () => {
             onClick={handleConnect}
             className="px-4 py-2 bg-accent/10 text-accent rounded-lg hover:bg-accent/20 transition-all font-semibold text-sm cursor-pointer"
           >
-            Connect Wallet
+            {!isConnecting
+              ? connectionSuccess
+                ? walletAddress?.substring(0, 21)
+                : "Connect Wallet"
+              : "connecting..."}
           </button>
+          {connectionSuccess && (
+            <button
+              onClick={handleDisconnect}
+              className="p-2 rounded-lg hover:bg-card transition-all cursor-pointer"
+            >
+              <LogOut className="w-5 h-5 text-muted-foreground hover:text-accent transition-all" />
+            </button>
+          )}
         </div>
       </div>
     </header>

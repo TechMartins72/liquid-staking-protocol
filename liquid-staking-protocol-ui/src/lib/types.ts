@@ -23,3 +23,20 @@ export interface WalletCardProps {
   onConnect: () => void;
   onDisconnect: () => void;
 }
+export interface WalletParams {
+  address: string;
+  addressLegacy: string;
+  coinPublicKey: string;
+  coinPublicKeyLegacy: string;
+  encryptionPublicKey: string;
+  encryptionPublicKeyLegacy: string;
+}
+
+export interface DappWalletState {
+  walletState: WalletParams;
+  connectionSuccess: boolean;
+  connectionError: boolean;
+  errMsg: string | null;
+}
+
+export type NotificationType = "success" | "error" | null;
