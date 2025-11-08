@@ -11,7 +11,6 @@ import {
 } from "recharts";
 import { TrendingUp, Zap, Lock, ArrowUpRight } from "lucide-react";
 import StatsCard from "./StatsCard";
-import useWalletManagement from "../customHooks/useWalletManagement";
 import { useContext } from "react";
 import { DappContext } from "../contextProviders/DappContextProvider";
 
@@ -39,10 +38,7 @@ const rewardsData = [
 ];
 
 const Dashboard = ({ onStakeClick }: DashboardProps) => {
-  const {
-    walletState: { connectionSuccess },
-  } = useWalletManagement();
-  const { setNotification } = useContext(DappContext)!;
+  const { setNotification, walletState } = useContext(DappContext)!;
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -52,7 +48,7 @@ const Dashboard = ({ onStakeClick }: DashboardProps) => {
           <div className="glass glass-hover rounded-2xl p-8 border border-border/50">
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
               <div>
-                <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-foreground to-accent bg-clip-text text-transparent mb-2">
+                <h1 className="text-4xl md:text-5xl font-bold bg-linear-to-r from-foreground to-accent bg-clip-text text-transparent mb-2">
                   Welcome Back
                 </h1>
                 <p className="text-muted-foreground text-lg">
@@ -61,7 +57,7 @@ const Dashboard = ({ onStakeClick }: DashboardProps) => {
               </div>
               <button
                 onClick={() => {
-                  connectionSuccess
+                  walletState
                     ? onStakeClick()
                     : setNotification({
                         type: "error",

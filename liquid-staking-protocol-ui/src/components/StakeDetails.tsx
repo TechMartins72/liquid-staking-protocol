@@ -91,7 +91,7 @@ function DetailCard({ label, value, isHash }: DetailCardProps) {
         {isHash && (
           <button
             onClick={handleCopy}
-            className="p-2 rounded-lg hover:bg-card transition-all flex-shrink-0"
+            className="p-2 rounded-lg hover:bg-card transition-all shrink-0"
             title={copied ? "Copied!" : "Copy"}
           >
             <Copy
@@ -197,14 +197,14 @@ export default function StakeDetailPage() {
                     {new Date(stake.date).toLocaleDateString()}
                   </p>
                 </div>
-                <div className="hidden md:block flex-1 h-px bg-gradient-to-r from-accent/50 to-transparent" />
+                <div className="hidden md:block flex-1 h-px bg-linear-to-r from-accent/50 to-transparent" />
                 <div>
                   <p className="text-xs text-muted-foreground mb-1">Duration</p>
                   <p className="text-foreground font-semibold">
                     {daysStaked} days
                   </p>
                 </div>
-                <div className="hidden md:block flex-1 h-px bg-gradient-to-l from-accent/50 to-transparent" />
+                <div className="hidden md:block flex-1 h-px bg-linear-to-l from-accent/50 to-transparent" />
                 <div>
                   <p className="text-xs text-muted-foreground mb-1">
                     {stake.completionDate ? "Completed" : "Current Status"}

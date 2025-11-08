@@ -36,7 +36,6 @@ export interface DappWalletState {
   walletState: WalletParams;
   connectionSuccess: boolean;
   connectionError: boolean;
-  errMsg: string | null;
 }
 
 export type NotificationType = "success" | "error" | null;

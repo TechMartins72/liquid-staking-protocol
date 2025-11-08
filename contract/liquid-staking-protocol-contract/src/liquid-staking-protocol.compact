@@ -14,14 +14,13 @@ constructor(initialNonce: Bytes<32>) {
 
 witness local_secret_key(): Bytes<32>;
 witness generateStakeId(): Bytes<32>;
-witness getTime(): Uint<64>;
 witness getTotalValue(amount: Uint<64>, time: Uint<64>): Uint<64>;
 
 export circuit stakeAsset(coin: CoinInfo): [] {
     assert (coin.value > 0, "Stake amount must be greater than 0");
     
     const disclosedCoin = disclose(coin);
-    const stakeTime = disclose(getTime());
+    const stakeTime = getCurrentTimeStamp();
     const staker = disclose(public_key(local_secret_key()));
     const stakedAmount = disclosedCoin.value as Uint<64>;
 
@@ -76,16 +75,10 @@ export circuit redeemAsset(coin: CoinInfo, stakeId: Bytes<32>): []  {
     return;
 }
 
-export circuit checkStakeReward(stakeId: Bytes<32>): Uint<64>  {
-    const disclosedId = disclose(stakeId);
-    const stakeExist = stakes.member(disclosedId);
-    assert(stakeExist, "This stake does not exist");
-    const stakeInfo = stakes.lookup(disclosedId);
-    assert(disclose(public_key(local_secret_key())) == stakeInfo.staker, "This stake does not belong to you");
-    const totalValue = disclose(getTotalValue(stakeInfo.stakedAmount, stakeInfo.stakeTime));
-    return totalValue - stakeInfo.stakedAmount;
-}
-
 export circuit addDailyReward(): [] {
     // increases TVL by 0.1% daily
+}
+
+export circuit public_key(sk: Bytes<32>): Bytes<32> {
+    return persistentHash<Vector<2, Bytes<32>>>([pad(32, "mn-liquidstake"), sk]);
 }

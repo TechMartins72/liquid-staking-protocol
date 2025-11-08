@@ -1,6 +1,6 @@
 module CustomLibrary {
     import CompactStandardLibrary;
-    export {StakeInfo, mintToken, delegateAssets, public_key, State, nonce, uniqueIndex, totalstDust, TVL};
+    export {StakeInfo, mintToken, delegateAssets, State, nonce, uniqueIndex, totalstDust, TVL};
 
     export ledger totalstDust: Uint<128>; // keeps track of stDust in circulation
     export ledger TVL: Uint<128>; // keeps track of total value locked
@@ -33,9 +33,5 @@ module CustomLibrary {
 
     circuit delegateAssets(): [] {
         return ;
-    }
-
-    circuit public_key(sk: Bytes<32>): Bytes<32> {
-        return persistentHash<Vector<2, Bytes<32>>>([pad(32, "mn-liquidstake"), sk]);
     }
 }

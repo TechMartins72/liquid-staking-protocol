@@ -1,12 +1,12 @@
 {
-  "name": "my-react-app",
+  "name": "liquid-staking-protocol-ui",
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
-    "lint": "eslint .",
+    "start": "http-server --port 0 ./dist",
+    "build": "tsc && vite build --mode testnet && cp -r ../contract/liquid-staking-protocol-contract/dist/managed/liquid-staking-protocol/keys ./dist/keys && cp -r ../contract/liquid-staking-protocol-contract/dist/managed/liquid-staking-protocol/zkir ./dist/zkir",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -84,6 +84,7 @@
     "zod": "3.25.76"
   },
   "devDependencies": {
+    "@repo/liquid-staking-protocol-contract": "workspace:*",
     "@eslint/js": "^9.33.0",
     "@tailwindcss/postcss": "^4.1.12",
     "@types/node": "^24.3.0",
