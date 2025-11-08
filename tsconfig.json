@@ -1,0 +1,6 @@
+{
+  "compilerOptions": {
+    "erasableSyntaxOnly": false,
+    "esModuleInterop": true
+  }
+}

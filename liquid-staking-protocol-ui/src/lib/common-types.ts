@@ -1,7 +1,7 @@
 import {
   Contract,
   type LiquidStakingPrivateState,
-  type Witnesses
+  type Witnesses,
 } from "@repo/liquid-staking-protocol-contract";
 import type {
   DeployedContract,
@@ -11,7 +11,11 @@ import type {
   ImpureCircuitId,
   MidnightProviders,
 } from "@midnight-ntwrk/midnight-js-types";
-import type { DAppConnectorWalletAPI, ServiceUriConfig } from "@midnight-ntwrk/dapp-connector-api";
+import type {
+  DAppConnectorWalletAPI,
+  ServiceUriConfig,
+} from "@midnight-ntwrk/dapp-connector-api";
+import type { DeployedLiquidStakingAPI } from "./deploymentAction";
 
 export interface WalletAndProvider {
   readonly wallet: DAppConnectorWalletAPI;
@@ -20,13 +24,14 @@ export interface WalletAndProvider {
 }
 export const LiquidStakingPrivateStateKey: string = "LiquidStakingPrivateState";
 
-export type LiquidStakingContract = Contract<LiquidStakingPrivateState, Witnesses<LiquidStakingPrivateState>>;
+export type LiquidStakingContract = Contract<
+  LiquidStakingPrivateState,
+  Witnesses<LiquidStakingPrivateState>
+>;
 
 export type LiquidStakingCircuits = ImpureCircuitId<
   Contract<LiquidStakingPrivateState>
->;  
-
-export declare const toHex: (bytes: Uint8Array) => string;
+>;
 
 export type LiquidStakingCircuitKeys = Exclude<
   keyof LiquidStakingContract["impureCircuits"],
@@ -39,8 +44,37 @@ export type LiquidStakingContractProvider = MidnightProviders<
   LiquidStakingPrivateState
 >;
 
-export type DeployedLiquidStakingContract = 
-  | DeployedContract<LiquidStakingContract>
-  | FoundContract<LiquidStakingContract>;
+export type DeployedLiquidStakingContract =
+  DeployedContract<LiquidStakingContract>;
 
-export type DerivedState = {};
+export interface WalletAndProvider {
+  readonly wallet: DAppConnectorWalletAPI;
+  readonly uris: ServiceUriConfig;
+  readonly providers: LiquidStakingContractProvider;
+}
+
+export interface WalletAPI {
+  wallet: DAppConnectorWalletAPI;
+  coinPublicKey: string;
+  encryptionPublicKey: string;
+  uris: ServiceUriConfig;
+}
+
+export interface LiquidStakingDeployment {
+  status: "inprogress" | "deployed" | "failed";
+  api: DeployedLiquidStakingAPI;
+}
+
+export interface StakesInfoType {
+  stakeId: string;
+  staker: string;
+  stakedAmount: number;
+  status: "open" | "closed";
+  stakeTime: number;
+  closedTime: number;
+}
+
+export type DerivedState = {
+  stakes: StakesInfoType[];
+  userSecretKey: string;
+};

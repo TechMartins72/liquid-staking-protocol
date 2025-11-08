@@ -1,17 +1,11 @@
 import { Wallet, Settings, History, LogOut } from "lucide-react";
 import { DappContext } from "../contextProviders/DappContextProvider";
 import { useContext } from "react";
+import { MidnightWalletContext } from "@/contextProviders/MidnightWalletProvider";
 
 const Header = () => {
-  const {
-    setRoute,
-    route,
-    walletState,
-    handleConnectToContract,
-    handleDisconnect,
-    isConnecting,
-    walletAddress,
-  } = useContext(DappContext)!;
+  const { setRoute, route, handleDisconnect } = useContext(DappContext)!;
+  const { state, connectFn } = useContext(MidnightWalletContext)!;
 
   return (
     <header className="border-b border-border/50 bg-background/80 backdrop-blur-sm sticky top-0 z-40">
@@ -56,16 +50,16 @@ const Header = () => {
             <Settings className="w-5 h-5 text-muted-foreground hover:text-accent transition-all" />
           </button>
           <button
-            onClick={handleConnectToContract}
+            onClick={connectFn}
             className="px-4 py-2 bg-accent/10 text-accent rounded-lg hover:bg-accent/20 transition-all font-semibold text-sm cursor-pointer"
           >
-            {!isConnecting
-              ? walletState
-                ? walletAddress?.substring(0, 21)
+            {!state.isConnecting
+              ? state.hasConnected
+                ? state.address?.substring(0, 21)
                 : "Connect Wallet"
               : "connecting..."}
           </button>
-          {walletState && (
+          {state.hasConnected && (
             <button
               onClick={handleDisconnect}
               className="p-2 rounded-lg hover:bg-card transition-all cursor-pointer"

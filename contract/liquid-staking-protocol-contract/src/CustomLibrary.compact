@@ -1,10 +1,10 @@
 module CustomLibrary {
     import CompactStandardLibrary;
-    export {StakeInfo, mintToken, delegateAssets, State, nonce, uniqueIndex, totalstDust, TVL};
+    export {StakeInfo, mintToken, delegateAssetsToThirdPartyProtocol, State, nonce, nonceUniqueIndex, totalCirculatingStakedtDust, TVL};
 
-    export ledger totalstDust: Uint<128>; // keeps track of stDust in circulation
+    export ledger totalCirculatingStakedtDust: Uint<128>; // keeps track of stDust in circulation
     export ledger TVL: Uint<128>; // keeps track of total value locked
-    export ledger uniqueIndex: Counter;
+    export ledger nonceUniqueIndex: Counter;
     export ledger nonce: Bytes<32>;
         
     enum State { open, closed };
@@ -14,24 +14,26 @@ module CustomLibrary {
         stakedAmount: Uint<64>;
         status: State;
         stakeTime: Uint<64>;
-        closedDate: Uint<64>;
+        closedTime: Uint<64>;
     };  
         
     circuit mintToken(amount: Uint<64>) :[] {
         const disclosedAmount = disclose(amount);
-        const newNonce = evolveNonce(uniqueIndex, nonce);
+        const newTokenNonce = evolveNonce(nonceUniqueIndex, nonce);
 
         mintToken(
         pad(32, "tkDUST-token-seperator"),
         disclose(disclosedAmount),
-        newNonce,
+        newTokenNonce,
         left<ZswapCoinPublicKey, ContractAddress>(ownPublicKey())
         );
-        uniqueIndex.increment(1);
-        totalstDust = disclosedAmount + totalstDust as Uint<128>;
+        nonceUniqueIndex.increment(1);
+        totalCirculatingStakedtDust = disclosedAmount + totalCirculatingStakedtDust as Uint<128>;
     }
 
-    circuit delegateAssets(): [] {
+
+    // responsible for delegating user staked asset to a third party protocol 
+    circuit delegateAssetsToThirdPartyProtocol(): [] {
         return ;
     }
 }

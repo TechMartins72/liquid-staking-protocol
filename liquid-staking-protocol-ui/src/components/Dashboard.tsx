@@ -13,6 +13,7 @@ import { TrendingUp, Zap, Lock, ArrowUpRight } from "lucide-react";
 import StatsCard from "./StatsCard";
 import { useContext } from "react";
 import { DappContext } from "../contextProviders/DappContextProvider";
+import { MidnightWalletContext } from "@/contextProviders/MidnightWalletProvider";
 
 interface DashboardProps {
   onStakeClick: () => void;
@@ -38,7 +39,8 @@ const rewardsData = [
 ];
 
 const Dashboard = ({ onStakeClick }: DashboardProps) => {
-  const { setNotification, walletState } = useContext(DappContext)!;
+  const { setNotification } = useContext(DappContext)!;
+  const { state } = useContext(MidnightWalletContext)!;
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -57,7 +59,7 @@ const Dashboard = ({ onStakeClick }: DashboardProps) => {
               </div>
               <button
                 onClick={() => {
-                  walletState
+                  state.hasConnected
                     ? onStakeClick()
                     : setNotification({
                         type: "error",

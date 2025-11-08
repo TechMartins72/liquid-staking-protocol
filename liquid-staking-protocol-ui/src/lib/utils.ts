@@ -1,3 +1,5 @@
+import { toHex } from "@midnight-ntwrk/midnight-js-utils";
+import type { StakesInfoType } from "./common-types";
 export const randomNonceBytes = (length: number): Uint8Array => {
   const newBytes = new Uint8Array(length);
   crypto.getRandomValues(newBytes);
@@ -15,3 +17,43 @@ export function stringTo32ByteArray(input: string): Uint8Array {
 
   return result;
 }
+
+export const getStakesInfo = (stakes: {
+  isEmpty(): boolean;
+  size(): bigint;
+  member(key_0: Uint8Array): boolean;
+  lookup(key_0: Uint8Array): {
+    staker: Uint8Array;
+    stakedAmount: bigint;
+    status: number;
+    stakeTime: bigint;
+    closedTime: bigint;
+  };
+  [Symbol.iterator](): Iterator<
+    [
+      Uint8Array,
+      {
+        staker: Uint8Array;
+        stakedAmount: bigint;
+        status: number;
+        stakeTime: bigint;
+        closedTime: bigint;
+      },
+    ]
+  >;
+}): StakesInfoType[] => {
+  const allStakes: StakesInfoType[] = [];
+
+  for (const [key, stake] of stakes) {
+    allStakes.push({
+      stakeId: toHex(key),
+      staker: toHex(stake.staker),
+      stakedAmount: Number(stake.stakedAmount),
+      status: stake.status === 0 ? "open" : "closed",
+      stakeTime: Number(stake.stakeTime),
+      closedTime: Number(stake.closedTime),
+    });
+  }
+
+  return allStakes;
+};
