@@ -1,3 +1,4 @@
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap");
 @import "tailwindcss";
 @import "tw-animate-css";
 
@@ -51,6 +52,8 @@
 @theme inline {
   --font-sans: "Geist", "Geist Fallback";
   --font-mono: "Geist Mono", "Geist Mono Fallback";
+  --font-montserrat: "Montserrat", sans-serif;
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -70,6 +73,7 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -81,11 +85,15 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-montserrat;
   }
 }
 
 @layer utilities {
+  .font-montserrat {
+    font-family: "Montserrat", sans-serif;
+  }
+
   .glass {
     background: rgba(10, 10, 77, 0.4);
     backdrop-filter: blur(10px);
@@ -100,12 +108,14 @@
   }
 
   .glow-accent {
-    box-shadow: 0 0 20px rgba(0, 217, 255, 0.3),
+    box-shadow:
+      0 0 20px rgba(0, 217, 255, 0.3),
       inset 0 0 20px rgba(0, 217, 255, 0.05);
   }
 
   .glow-accent-hover:hover {
-    box-shadow: 0 0 30px rgba(0, 217, 255, 0.5),
+    box-shadow:
+      0 0 30px rgba(0, 217, 255, 0.5),
       inset 0 0 20px rgba(0, 217, 255, 0.1);
   }
 

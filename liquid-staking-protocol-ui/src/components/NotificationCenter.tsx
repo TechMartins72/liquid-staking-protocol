@@ -31,7 +31,7 @@ const NotificationCenter = ({ notification }: NotificationCenterProps) => {
 
   return (
     <div
-      className={`fixed bottom-6 right-6 max-w-md transition-all duration-300 ${
+      className={`fixed bottom-6 right-6 max-w-md transition-all duration-300 z-200 ${
         isVisible ? "animate-slide-in" : "animate-slide-out"
       }`}
     >
@@ -64,9 +64,7 @@ const NotificationCenter = ({ notification }: NotificationCenterProps) => {
           >
             {notification.type === "success" ? "Success" : "Error"}
           </p>
-          <p className="text-sm text-white mt-1">
-            {notification.message}
-          </p>
+          <p className="text-sm text-white mt-1">{notification.message}</p>
         </div>
 
         <button

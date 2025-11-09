@@ -111,7 +111,7 @@ export class LiquidStakingDeployedApi implements DeployedLiquidStakingAPI {
 
   static deployContract = async (providers: LiquidStakingContractProvider) => {
     try {
-      console.log("Deploying Contract");
+      console.log("Inside Deploy Contract");
       let deployedLiquidStakingContract =
         await deployContract<LiquidStakingContract>(providers, {
           contract: LiquidStakingContractInstance,

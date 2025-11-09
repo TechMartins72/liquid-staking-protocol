@@ -40,7 +40,9 @@ const rewardsData = [
 
 const Dashboard = ({ onStakeClick }: DashboardProps) => {
   const { setNotification } = useContext(DappContext)!;
-  const { state } = useContext(MidnightWalletContext)!;
+  const {
+    state: { hasConnected },
+  } = useContext(MidnightWalletContext)!;
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -59,7 +61,7 @@ const Dashboard = ({ onStakeClick }: DashboardProps) => {
               </div>
               <button
                 onClick={() => {
-                  state.hasConnected
+                  hasConnected
                     ? onStakeClick()
                     : setNotification({
                         type: "error",

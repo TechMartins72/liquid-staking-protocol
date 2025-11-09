@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { ChevronRight, Filter } from "lucide-react";
 import type { Stake } from "../lib/types";
+import { DappContext } from "@/contextProviders/DappContextProvider";
 
 // Mock data - in production, this would come from an API
 const mockStakes: Stake[] = [
@@ -71,6 +72,7 @@ export default function HistoryPage() {
   const [selectedFilter, setSelectedFilter] = useState<
     "all" | "active" | "unstaking" | "completed"
   >("all");
+  const { setRoute } = useContext(DappContext)!;
 
   const filteredStakes =
     selectedFilter === "all"
@@ -129,10 +131,10 @@ export default function HistoryPage() {
           </div>
 
           {/* Stakes List */}
-          <div className="space-y-3">
+          <div className="space-y-3 space-x-3">
             {filteredStakes.length > 0 ? (
               filteredStakes.map((stake) => (
-                <button key={stake.id}>
+                <button onClick={() => setRoute("stakedetails")} key={stake.id}>
                   <div className="glass glass-hover rounded-xl p-6 border border-border/50 cursor-pointer group">
                     <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                       <div className="flex-1">
@@ -145,8 +147,8 @@ export default function HistoryPage() {
                               stake.status === "active"
                                 ? "bg-green-500/20 text-green-400"
                                 : stake.status === "unstaking"
-                                ? "bg-yellow-500/20 text-yellow-400"
-                                : "bg-blue-500/20 text-blue-400"
+                                  ? "bg-yellow-500/20 text-yellow-400"
+                                  : "bg-blue-500/20 text-blue-400"
                             }`}
                           >
                             {stake.status.charAt(0).toUpperCase() +

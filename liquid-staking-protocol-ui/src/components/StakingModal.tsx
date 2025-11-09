@@ -78,7 +78,7 @@ const StakingModal = ({ isOpen, onClose, onComplete }: StakingModalProps) => {
             </h2>
             <button
               onClick={handleReset}
-              className="p-1 hover:bg-card rounded-lg transition-all"
+              className="p-1 hover:bg-card rounded-lg transition-all cursor-pointer"
             >
               <X className="w-6 h-6 text-muted-foreground" />
             </button>
@@ -97,10 +97,10 @@ const StakingModal = ({ isOpen, onClose, onComplete }: StakingModalProps) => {
               {currentStep === "amount"
                 ? "1"
                 : currentStep === "confirm"
-                ? "2"
-                : currentStep === "processing"
-                ? "3"
-                : "4"}{" "}
+                  ? "2"
+                  : currentStep === "processing"
+                    ? "3"
+                    : "4"}{" "}
               of 4
             </p>
           </div>
@@ -141,19 +141,19 @@ const StakingModal = ({ isOpen, onClose, onComplete }: StakingModalProps) => {
                     <div className="flex gap-2">
                       <button
                         onClick={() => setAmount("1")}
-                        className="flex-1 py-2 text-xs bg-border/50 hover:bg-border rounded transition-all text-foreground"
+                        className="flex-1 py-2 text-xs bg-border/50 hover:bg-border rounded transition-all text-foreground cursor-pointer"
                       >
                         1 ETH
                       </button>
                       <button
                         onClick={() => setAmount("5")}
-                        className="flex-1 py-2 text-xs bg-border/50 hover:bg-border rounded transition-all text-foreground"
+                        className="flex-1 py-2 text-xs bg-border/50 hover:bg-border rounded transition-all text-foreground cursor-pointer"
                       >
                         5 ETH
                       </button>
                       <button
                         onClick={() => setAmount("10.5")}
-                        className="flex-1 py-2 text-xs bg-border/50 hover:bg-border rounded transition-all text-foreground"
+                        className="flex-1 py-2 text-xs bg-border/50 hover:bg-border rounded transition-all text-foreground cursor-pointer"
                       >
                         Max
                       </button>

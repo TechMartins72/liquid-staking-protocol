@@ -4,17 +4,26 @@ import { useContext } from "react";
 import { MidnightWalletContext } from "@/contextProviders/MidnightWalletProvider";
 
 const Header = () => {
-  const { setRoute, route, handleDisconnect } = useContext(DappContext)!;
-  const { state, connectFn } = useContext(MidnightWalletContext)!;
+  const { setRoute, route } = useContext(DappContext)!;
+  const {
+    state: { hasConnected, isConnecting, address },
+    connectFn,
+    disconnect,
+  } = useContext(MidnightWalletContext)!;
 
   return (
     <header className="border-b border-border/50 bg-background/80 backdrop-blur-sm sticky top-0 z-40">
       <div className="max-w-7xl mx-auto px-4 py-4 md:px-8 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-accent flex items-center justify-center">
+        <div
+          onClick={() => setRoute("dashboard")}
+          className="flex items-center gap-3"
+        >
+          <div className="w-10 h-10 rounded-lg bg-accent flex items-center justify-center cursor-pointer">
             <Wallet className="w-6 h-6 text-accent-foreground" />
           </div>
-          <h1 className="text-2xl font-bold text-foreground">LiquidStake</h1>
+          <h1 className="text-2xl font-bold text-foreground cursor-pointer">
+            Hydra Stake
+          </h1>
         </div>
 
         <div className="flex items-center gap-4">
@@ -53,15 +62,15 @@ const Header = () => {
             onClick={connectFn}
             className="px-4 py-2 bg-accent/10 text-accent rounded-lg hover:bg-accent/20 transition-all font-semibold text-sm cursor-pointer"
           >
-            {!state.isConnecting
-              ? state.hasConnected
-                ? state.address?.substring(0, 21)
+            {!isConnecting
+              ? hasConnected
+                ? address?.substring(0, 21)
                 : "Connect Wallet"
               : "connecting..."}
           </button>
-          {state.hasConnected && (
+          {hasConnected && (
             <button
-              onClick={handleDisconnect}
+              onClick={disconnect}
               className="p-2 rounded-lg hover:bg-card transition-all cursor-pointer"
             >
               <LogOut className="w-5 h-5 text-muted-foreground hover:text-accent transition-all" />

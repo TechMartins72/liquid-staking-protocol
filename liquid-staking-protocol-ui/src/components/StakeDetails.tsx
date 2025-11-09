@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { ArrowLeft, Copy, ExternalLink } from "lucide-react";
 import type { Stake } from "../lib/types";
+import { DappContext } from "@/contextProviders/DappContextProvider";
 
 // Mock data - in production, this would come from an API
 const mockStakes: Stake[] = [
@@ -107,6 +108,7 @@ function DetailCard({ label, value, isHash }: DetailCardProps) {
 }
 
 export default function StakeDetailPage() {
+  const { setRoute } = useContext(DappContext)!;
   const stakeId = "stake order id";
 
   const stake = mockStakes.find((s) => s.id === stakeId);
@@ -119,7 +121,7 @@ export default function StakeDetailPage() {
             <div className="glass rounded-2xl p-12 border border-border/50 text-center">
               <p className="text-muted-foreground mb-4">Stake not found</p>
               <button
-                onClick={() => {}}
+                onClick={() => setRoute("history")}
                 className="px-4 py-2 bg-accent text-accent-foreground rounded-lg hover:shadow-lg transition-all"
               >
                 Back to History
@@ -169,8 +171,8 @@ export default function StakeDetailPage() {
                       stake.status === "active"
                         ? "text-green-400"
                         : stake.status === "unstaking"
-                        ? "text-yellow-400"
-                        : "text-blue-400"
+                          ? "text-yellow-400"
+                          : "text-blue-400"
                     }`}
                   >
                     {stake.status.charAt(0).toUpperCase() +

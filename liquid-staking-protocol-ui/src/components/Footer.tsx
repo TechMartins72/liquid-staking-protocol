@@ -122,8 +122,8 @@ const Footer = () => {
 
         <div className="border-t border-border/50 pt-8">
           <p className="text-center text-muted-foreground text-sm">
-            © 2025 LiquidStake. All rights reserved.
-          </p>
+            © 2025 HydraStake. All rights reserved.
+          </p>{" "}
         </div>
       </div>
     </footer>

@@ -43,6 +43,7 @@ import { noProofClient, proofClient } from "./proofProvider";
 import { WrappedZKConfigProvider } from "./zkConfigProvider";
 import type { LiquidStakingPrivateState } from "@repo/liquid-staking-protocol-contract";
 import { DappContext } from "./DappContextProvider";
+import { DeployedContractContext } from "./DeployedContractProvider";
 
 interface WalletAPIType extends WalletAPI {
   address: string | undefined;
@@ -86,6 +87,7 @@ const MidnightWalletProvider = ({
   logger,
 }: PropsWithChildren<{ logger: Logger }>) => {
   const { setNotification } = useContext(DappContext)!;
+  // const { onDeployContract } = useContext(DeployedContractContext)!;
   const [isConnecting, setIsConnecting] = useState<boolean>(false);
   const [hasConnected, setHasConnected] = useState<boolean>(false);
   const [walletAPI, setWalletAPI] = useState<WalletAPIType | undefined>();
@@ -299,6 +301,9 @@ const MidnightWalletProvider = ({
 
   // Enables user connect their wallet to the DAPP
   const connect = async () => {
+    if (hasConnected || isConnecting) {
+      return;
+    }
     setIsConnecting(true);
     setError(undefined);
     logger?.info("Connecting to wallet....");
@@ -322,7 +327,7 @@ const MidnightWalletProvider = ({
         throw new Error("Invalid wallet state - missing required fields");
       }
 
-      console.log("Wallet state", connectedWalletState);
+      console.log("Wallet state", { connectedWalletState });
 
       const newWalletAPI = {
         address: connectedWalletState.address,
@@ -421,7 +426,6 @@ const MidnightWalletProvider = ({
   const disconnect = async () => {
     sessionStorage.removeItem("WALLET_STATE");
     sessionStorage.removeItem("WALLET_CONNECTED");
-    window.location.reload();
     setWalletAPI(undefined);
     setWalletState({
       address: undefined,
@@ -433,6 +437,7 @@ const MidnightWalletProvider = ({
       walletAPI: undefined,
       error: null,
     });
+    window.location.reload();
   };
 
   // Initiates wallet reconnection on component mount

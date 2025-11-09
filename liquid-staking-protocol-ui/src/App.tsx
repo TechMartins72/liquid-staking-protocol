@@ -7,9 +7,13 @@ import NotificationCenter from "./components/NotificationCenter";
 import { DappContext } from "./contextProviders/DappContextProvider";
 import HistoryPage from "./components/History";
 import StakeDetailPage from "./components/StakeDetails";
+import { MidnightWalletContext } from "./contextProviders/MidnightWalletProvider";
+import { DeployedContractProvider } from "./contextProviders/DeployedContractProvider";
+import UnauthenticatedPage from "./components/UnauthenticatedPage";
 
 function App() {
   const { notification, setNotification, route } = useContext(DappContext)!;
+  const { hasConnected } = useContext(MidnightWalletContext)!;
   const [isStakingOpen, setIsStakingOpen] = useState(false);
 
   const handleStakeClick = () => setIsStakingOpen(true);
@@ -20,19 +24,26 @@ function App() {
     setTimeout(() => setNotification(null), 4000);
   };
 
-  return (
+  return hasConnected ? (
+    <DeployedContractProvider>
+      <>
+        <Header />
+        {route === "dashboard" && <Dashboard onStakeClick={handleStakeClick} />}
+        {route === "history" && <HistoryPage />}
+        {route === "stakedetails" && <StakeDetailPage />}
+        <StakingModal
+          isOpen={isStakingOpen}
+          onClose={() => setIsStakingOpen(false)}
+          onComplete={handleStakingComplete}
+        />
+        <NotificationCenter notification={notification} />
+        <Footer />
+      </>
+    </DeployedContractProvider>
+  ) : (
     <>
-      <Header />
-      {route === "dashboard" && <Dashboard onStakeClick={handleStakeClick} />}
-      {route === "history" && <HistoryPage />}
-      {route === "stakedetails" && <StakeDetailPage />}
-      <StakingModal
-        isOpen={isStakingOpen}
-        onClose={() => setIsStakingOpen(false)}
-        onComplete={handleStakingComplete}
-      />
+      <UnauthenticatedPage />
       <NotificationCenter notification={notification} />
-      <Footer />
     </>
   );
 }

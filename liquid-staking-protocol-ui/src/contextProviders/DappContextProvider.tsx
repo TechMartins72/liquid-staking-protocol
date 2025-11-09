@@ -12,7 +12,6 @@ export const DappContext = createContext<DappConfigType | null>(null);
 type routes = "dashboard" | "history" | "stakedetails";
 
 interface DappConfigType {
-  handleDisconnect: () => void;
   notification: {
     type: NotificationType;
     message: string;
@@ -36,19 +35,11 @@ const DappContextProvider: React.FC<Readonly<PropsWithChildren>> = ({
     message: string;
   } | null>(null);
 
-  const handleDisconnect = () => {
-    setNotification({
-      type: "success",
-      message: "Wallet disconnected successfully!",
-    });
-  };
-
   const value: DappConfigType = {
     notification,
     setNotification,
     route,
     setRoute,
-    handleDisconnect,
   };
 
   return <DappContext.Provider value={value}>{children}</DappContext.Provider>;
