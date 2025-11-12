@@ -40,7 +40,8 @@ export class HydraStakeSimulator {
       randomBytes(32),
       encodeTokenType(nativeToken()),
       pad("hydra:htDUST", 32),
-      encodeContractAddress(this.delegationContractAddress) // Dummy testnet third party delegation wallet address
+      encodeContractAddress(this.delegationContractAddress), // Dummy testnet third party delegation wallet address
+      BigInt(1_000_000)
     );
     this.contractAddress = sampleContractAddress();
     this.updateUserPrivateState = (

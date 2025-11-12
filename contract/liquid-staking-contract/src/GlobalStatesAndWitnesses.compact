@@ -52,4 +52,5 @@ module GlobalStatesAndWitnesses{
     export witness divide(numerator: Uint<64>, denominator: Uint<64>): [Uint<64>, Uint<64>];
     export witness secrete_key(): Bytes<32>;
     export witness get_current_time(): Uint<64>;
+    export witness call_backend_for_delegation(amount: Uint<128>): Boolean; // Just for third party simulatin purpose (TESTING ONLY)
 }

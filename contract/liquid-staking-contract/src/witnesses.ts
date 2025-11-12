@@ -1,5 +1,10 @@
-import { Ledger, QualifiedCoinInfo, StakePrivateState } from "./managed/hydra-stake-protocol/contract/index.cjs";
+import {
+  Ledger,
+  QualifiedCoinInfo,
+  StakePrivateState,
+} from "./managed/hydra-stake-protocol/contract/index.cjs";
 import { WitnessContext } from "@midnight-ntwrk/compact-runtime";
+import axios from "axios";
 
 export type HydraStakePrivateState = {
   readonly secretKey: Uint8Array;
@@ -7,9 +12,9 @@ export type HydraStakePrivateState = {
 };
 
 export interface LedgerMapItem<T> {
-  key: Uint8Array, // User public key
-  state: T// Diff. stake with specific coin
-};
+  key: Uint8Array; // User public key
+  state: T; // Diff. stake with specific coin
+}
 
 export interface LedgerMap<T> {
   isEmpty(): boolean;
@@ -19,23 +24,25 @@ export interface LedgerMap<T> {
   [Symbol.iterator](): Iterator<[Uint8Array, T]>;
 }
 
-export const createArrayFromMapping = <T>(mapping: LedgerMap<T>): LedgerMapItem<T>[] => {
+export const createArrayFromMapping = <T>(
+  mapping: LedgerMap<T>
+): LedgerMapItem<T>[] => {
   return Array.from(mapping).map(([key, state]) => ({
     key: key,
-    state: state
-  }))
-}
+    state: state,
+  }));
+};
 
-export const createHydraStakePrivateState = (secretKey: Uint8Array): HydraStakePrivateState => ({
+export const createHydraStakePrivateState = (
+  secretKey: Uint8Array
+): HydraStakePrivateState => ({
   secretKey,
   stakeMetadata: {
     deposit_amount: 0n,
     stAssets_minted: 0n,
-    redeemable: 0n
-  }
+    redeemable: 0n,
+  },
 });
-
-
 
 export const witnesses = {
   secrete_key: (
@@ -49,15 +56,20 @@ export const witnesses = {
     numerator: bigint, //Scalled by 1_000_000n
     denominator: bigint //Scalled by 1_000_000n
   ): [HydraStakePrivateState, [bigint, bigint]] => {
-    if(numerator == 0n) throw new Error("Invalid division arithemetics");
+    if (numerator == 0n) throw new Error("Invalid division arithemetics");
     const quotient = numerator / denominator;
     const remainder = numerator % denominator;
 
-    return [privateState, [quotient, remainder]]
+    return [privateState, [quotient, remainder]];
   },
 
-  get_stake_private_state: ({ privateState }: WitnessContext<Ledger, HydraStakePrivateState>): [HydraStakePrivateState, StakePrivateState] => {
-    return [privateState, privateState.stakeMetadata]
+  get_stake_private_state: ({
+    privateState,
+  }: WitnessContext<Ledger, HydraStakePrivateState>): [
+    HydraStakePrivateState,
+    StakePrivateState,
+  ] => {
+    return [privateState, privateState.stakeMetadata];
   },
 
   update_stake_private_state: (
@@ -68,13 +80,36 @@ export const witnesses = {
       ...privateState,
       stakeMetadata: {
         ...privateState.stakeMetadata,
-        ...metadata
-      }
-    }
-    return [newPrivateState, []]
+        ...metadata,
+      },
+    };
+    return [newPrivateState, []];
   },
 
-  get_current_time: ({ privateState }: WitnessContext<Ledger, HydraStakePrivateState>): [HydraStakePrivateState, bigint] => {
-    return [privateState, BigInt(Date.now())]
+  get_current_time: ({
+    privateState,
+  }: WitnessContext<Ledger, HydraStakePrivateState>): [
+    HydraStakePrivateState,
+    bigint,
+  ] => {
+    return [privateState, BigInt(Date.now())];
   },
-}
+
+  /** Test delegation functionality
+   * Interact with backend API which provide back dlegagtion funds
+   * Receive response and then exit the witness
+   */
+  call_backend_for_delegation: (
+    { privateState }: WitnessContext<Ledger, HydraStakePrivateState>,
+    delegate_amount: bigint
+  ): [HydraStakePrivateState, boolean] => {
+    try {
+      const response = axios.post("http://localhost:3000/", {
+        pool_stake_amount: Number(delegate_amount),
+      });
+      return [privateState, true];
+    } catch (error) {
+      throw new Error(error instanceof Error ? error.message : String(error));
+    }
+  },
+};

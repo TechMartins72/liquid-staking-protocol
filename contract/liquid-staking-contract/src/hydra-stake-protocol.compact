@@ -15,13 +15,14 @@ constructor(
      initialNonce: Bytes<32>, 
      initValidAssetCoinType: Bytes<32>, 
      initMintDomain: Bytes<32>,
-     initDelegationContractAddress: Bytes<32>
+     initDelegationContractAddress: Bytes<32>,
+     initScaleFactor: Uint<32>
      ) {
      nonce = disclose(initialNonce);
      validAssetCoinType = disclose(initValidAssetCoinType);
      mintCounter.increment(1);
      stAssetDomainSeparator = disclose(initMintDomain);
-     SCALE_FACTOR = 1000000;
+     SCALE_FACTOR = disclose(initScaleFactor); // Specifies the scale factor based on coin type (e.g 1ETH = 1E18, tDUST = 1E6)
      superAdmin = ownPublicKey().bytes;
      delegationContractAddress = disclose(initDelegationContractAddress);
 }
@@ -135,16 +136,16 @@ export circuit recieveDelegateReward(coin: CoinInfo): []{
 export circuit delegate(): Boolean{
      const userPk = ownPublicKey().bytes;
      assert (userPk == superAdmin || admins.member(userPk), "Unauthorized to delegate protocol asset");
-     
+     const delegationAmt = protocolTVL.value; //(TESTNING ONLY)
      send(protocolTVL, right<ZswapCoinPublicKey, ContractAddress>(
           ContractAddress {
                bytes: delegationContractAddress
           }
      ), protocolTVL.value);
-
-     stakePoolStatus = StakePoolStatus.delegated;
-     
-     return true;
+     stakePoolStatus = StakePoolStatus.delegated; 
+     const isDelegated = disclose(call_backend_for_delegation(delegationAmt)); //(TESTNING ONLY)
+     assert (isDelegated, "Failed to delegated protocol TVL"); //(TESTNING ONLY)
+     return isDelegated;
 }
 
 /** Update admin access */
