@@ -4,13 +4,24 @@ import {
   constructorContext,
   QueryContext,
 } from "@midnight-ntwrk/compact-runtime";
-import { CoinInfo, Contract, ledger, Ledger, Witnesses, } from "../src/managed/hydra-stake-protocol/contract/index.cjs"
-import { HydraStakePrivateState, createHydraStakePrivateState, witnesses } from "../src/witnesses"
+import {
+  CoinInfo,
+  Contract,
+  ledger,
+  Ledger,
+  Witnesses,
+} from "../src/managed/hydra-stake-protocol/contract/index.cjs";
+import {
+  HydraStakePrivateState,
+  createHydraStakePrivateState,
+  witnesses,
+} from "../src/witnesses";
 import {
   encodeContractAddress,
   encodeTokenType,
   nativeToken,
   sampleContractAddress,
+  tokenType,
 } from "@midnight-ntwrk/ledger";
 import { pad, randomBytes } from "./utils";
 
@@ -22,12 +33,11 @@ export type HydraStakeContract = Contract<
 export class HydraStakeSimulator {
   readonly contract: HydraStakeContract;
   turnContext: CircuitContext<HydraStakePrivateState>;
-  updateUserPrivateState: (
-    newPrivateState: HydraStakePrivateState
-  ) => void;
+  updateUserPrivateState: (newPrivateState: HydraStakePrivateState) => void;
   readonly SCALE_FACTOR: number;
   readonly contractAddress: string;
-  readonly delegationContractAddress = "0200df7d34b0d9843ac09e18d412640a8214836c9dec943e708fde38ee2c3113975f";
+  readonly delegationContractAddress =
+    "0200df7d34b0d9843ac09e18d412640a8214836c9dec943e708fde38ee2c3113975f";
 
   constructor(privateState: HydraStakePrivateState) {
     this.contract = new Contract(witnesses);
@@ -46,7 +56,7 @@ export class HydraStakeSimulator {
     this.contractAddress = sampleContractAddress();
     this.updateUserPrivateState = (
       newPrivateState: HydraStakePrivateState
-    ) => { };
+    ) => {};
     this.turnContext = {
       currentPrivateState,
       currentZswapLocalState,
@@ -100,9 +110,17 @@ export class HydraStakeSimulator {
     };
   }
 
-  stake(
-    amount: number,
-  ): Ledger {
+  stCoin(amount: number): CoinInfo {
+    return {
+      color: encodeTokenType(
+        tokenType(pad("hydra:htDUST", 32), this.contractAddress)
+      ),
+      nonce: randomBytes(32),
+      value: BigInt(amount),
+    };
+  }
+
+  stake(amount: number): Ledger {
     return this.updateStateAndGetLedgerState(
       this.contract.impureCircuits.stake(
         this.turnContext,
@@ -111,9 +129,7 @@ export class HydraStakeSimulator {
     );
   }
 
-  receiveDelegateReward(
-    amount: number,
-  ): Ledger {
+  receiveDelegateReward(amount: number): Ledger {
     return this.updateStateAndGetLedgerState(
       this.contract.impureCircuits.recieveDelegateReward(
         this.turnContext,
@@ -122,20 +138,24 @@ export class HydraStakeSimulator {
     );
   }
 
-  redeem(): Ledger {
+  redeem(amount: number): Ledger {
     return this.updateStateAndGetLedgerState(
       this.contract.impureCircuits.redeem(
         this.turnContext,
+        this.stCoin(amount * this.SCALE_FACTOR)
       )
     );
   }
 
   delegate(): Ledger {
     return this.updateStateAndGetLedgerState(
-      this.contract.impureCircuits.delegate(
-        this.turnContext,
-      )
+      this.contract.impureCircuits.delegate(this.turnContext)
     );
   }
 
+  setCoinColor(): Ledger {
+    return this.updateStateAndGetLedgerState(
+      this.contract.impureCircuits.setTokenColor(this.turnContext)
+    );
+  }
 }

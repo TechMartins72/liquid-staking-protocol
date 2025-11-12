@@ -64,7 +64,7 @@ describe("Stake, Add to Stake, Receive delgation reward & Redeem", () => {
     console.log("===================================================");
     console.log("Current staker", stake);
     console.log("===================================================");
-    console.log("Protocol TVL state: After Borrowing from pool 💰");
+    console.log("Protocol TVL state: After staking from pool 💰");
     console.log("===================================================");
     console.log("- Current pool balance", stakeLedgerState.protocolTVL.value);
     console.log(
@@ -114,7 +114,7 @@ describe("Stake, Add to Stake, Receive delgation reward & Redeem", () => {
       uint8arraytostring(addStakeLedgerState.protocolTVL.color)
     );
     console.log("===================================================");
-    console.log("Private state: After staking to pool 🗝️");
+    console.log("Private state: After adding staking to pool 🗝️");
     console.log("===================================================");
     console.log("- Current private state", privateState);
     console.log("Current total mint", addStakeLedgerState.total_stAsset_Minted);
@@ -162,12 +162,30 @@ describe("Stake, Add to Stake, Receive delgation reward & Redeem", () => {
       "================================================================================================================================="
     );
     console.log(
+      "/********************* SET COIN COLOR FOR sTCOIN *****************************/"
+    );
+    console.log(
+      "================================================================================================================================="
+    );
+    const setColorLedgerState = simulator.setCoinColor();
+    console.log("===================================================");
+    console.log("stCoin color after setting coin type (ADMIN ONLY)💰");
+    console.log("===================================================");
+    console.log(
+      "- Current ",
+      uint8arraytostring(setColorLedgerState.stAssetCoinColor)
+    );
+
+    console.log(
+      "================================================================================================================================="
+    );
+    console.log(
       "/********************* REDEEM STKAED ASSET *****************************/"
     );
     console.log(
       "================================================================================================================================="
     );
-    const redeemLedgerState = simulator.redeem();
+    const redeemLedgerState = simulator.redeem(152.45);
     privateState = simulator.getPrivateState();
     console.log("===================================================");
     console.log("Protocol TVL after redeeming stake plus reward to pool 💰");
@@ -222,7 +240,7 @@ describe("Stake & Delegate protocol balance to third party contract", () => {
     console.log("===================================================");
     console.log("Current staker", stake);
     console.log("===================================================");
-    console.log("Protocol TVL state: After Borrowing from pool 💰");
+    console.log("Protocol TVL state: After staking from pool 💰");
     console.log("===================================================");
     console.log("- Current pool balance", stakeLedgerState.protocolTVL.value);
     console.log(
@@ -250,7 +268,7 @@ describe("Stake & Delegate protocol balance to third party contract", () => {
 
     const delegationStakeLedgerState = simulator.delegate();
     console.log("===================================================");
-    console.log("Protocol TVL state: After Borrowing from pool 💰");
+    console.log("Protocol TVL state: After delegating to third party 💰");
     console.log("===================================================");
     console.log(
       "- Current pool balance",

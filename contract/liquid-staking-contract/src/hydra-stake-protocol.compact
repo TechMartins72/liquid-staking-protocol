@@ -3,11 +3,14 @@ pragma language_version >= 0.17.0;
 import CompactStandardLibrary;
 import GlobalStatesAndWitnesses;
 import Utils;
+import Admin;
 
 export {
      protocolTVL, total_rewards_accrued, total_stake_withdrawn, total_stAsset_Minted,
      validAssetCoinType, StakePrivateState, Stake, StakeStatus, stakings,
-     QualifiedCoinInfo, CoinInfo, SCALE_FACTOR, admins, stakePoolStatus, StakePoolStatus
+     QualifiedCoinInfo, CoinInfo, SCALE_FACTOR, admins, stakePoolStatus, 
+     StakePoolStatus, stAssetCoinColor, delegate, setTokenColor, removeNewAdmin, 
+     addNewAdmin
 };
 
 /** Initialize the contract with admin specified parameters */
@@ -84,9 +87,9 @@ export circuit stake(coin: CoinInfo): []{
 }
 
 export circuit redeem(coin: CoinInfo): []{
-     const disclosedCoin = disclose(coin);
      /** Ensure that protocolTVL plus delegation reward is available for redemption */
      assert (stakePoolStatus == StakePoolStatus.available, "Delegation has already proceeded");
+     const disclosedCoin = disclose(coin);
      const userPk = ownPublicKey().bytes;
      const stakerId = generateStakerId(disclose(secrete_key()));
      assert (stakings.member(userPk), "You do not have any stakes in the pool");
@@ -98,7 +101,7 @@ export circuit redeem(coin: CoinInfo): []{
      
      /* Retrieves user's private state and compares minted stAsset amount and coin type with the provided coin info */
      assert(privateState.stAssets_minted == disclosedCoin.value, "Please provide the accurate value for stAsset to redeem");
-     assert(disclosedCoin.color == validAssetCoinType, "Invalid Token Type: please provide valid type for stAsset");
+     assert(disclosedCoin.color == stAssetCoinColor, "Invalid Token Type: please provide valid type for stAsset");
      assert (stake.status == StakeStatus.open, "Already reemed stake for specified position");
      
      /* Reconfirms staked info in the user's private state incase of fraud */
@@ -140,33 +143,4 @@ export circuit recieveDelegateReward(coin: CoinInfo): []{
      stakePoolStatus = StakePoolStatus.available; 
 }
 
-/** ADMIN FUNCTIONALITIES */
-/** Delegates protocol funds to third party  */
-export circuit delegate(): Boolean{
-     const userPk = ownPublicKey().bytes;
-     assert (userPk == superAdmin || admins.member(userPk), "Unauthorized to delegate protocol asset");
-     const delegationAmt = protocolTVL.value; //(TESTNING ONLY)
-     send(protocolTVL, right<ZswapCoinPublicKey, ContractAddress>(
-          ContractAddress {
-               bytes: delegationContractAddress
-          }
-     ), protocolTVL.value);
-     stakePoolStatus = StakePoolStatus.delegated; 
-     const isDelegated = disclose(call_backend_for_delegation(delegationAmt)); //(TESTNING ONLY)
-     assert (isDelegated, "Failed to delegated protocol TVL"); //(TESTNING ONLY)
-     return isDelegated;
-}
-
-/** Update admin access */
-export circuit addNewAdmin(adminCpk: Bytes<32>): [] {
-     assert (ownPublicKey().bytes == superAdmin, "Unauthorized to add new admin");
-
-     admins.insert(disclose(adminCpk));
-}
-
-export circuit removeNewAdmin(adminCpk: Bytes<32>): [] {
-     assert (ownPublicKey().bytes == superAdmin, "Unauthorized to add new admin");
-
-     admins.remove(disclose(adminCpk));
-}
 

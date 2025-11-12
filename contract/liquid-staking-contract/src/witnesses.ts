@@ -4,6 +4,7 @@ import {
   StakePrivateState,
 } from "./managed/hydra-stake-protocol/contract/index.cjs";
 import { WitnessContext } from "@midnight-ntwrk/compact-runtime";
+import axios from "axios";
 
 export type HydraStakePrivateState = {
   readonly secretKey: Uint8Array;
@@ -94,22 +95,26 @@ export const witnesses = {
     return [privateState, BigInt(Date.now())];
   },
 
-  /** Test delegation functionality
+  /** Test delegation functionality (TEST ONLY)
    * Interact with backend API which provide back dlegagtion funds
    * Receive response and then exit the witness
    */
   call_backend_for_delegation: (
     { privateState }: WitnessContext<Ledger, HydraStakePrivateState>,
-    delegate_amount: bigint
+    delegate_amount: bigint,
+    contractAddress: Uint8Array,
   ): [HydraStakePrivateState, boolean] => {
     try {
-      const response = fetch("http://localhost:3000/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ pool_stake_amount: Number(delegate_amount) }),
+      axios.post("http://localhost:8000/", {
+        pool_stake_amount: Number(delegate_amount),
+        contractAddress: contractAddress
+      })
+      .then((apiResponse) => apiResponse.status == 200)
+      .catch((error) => {
+        // const errMsg = error instanceof Error ? error.message : String(error);
+        // throw new Error(errMsg);
       });
+      
       return [privateState, true];
     } catch (error) {
       throw new Error(error instanceof Error ? error.message : String(error));
