@@ -1,0 +1,162 @@
+pragma language_version >= 0.17.0;
+
+import CompactStandardLibrary;
+import GlobalStatesAndWitnesses;
+import Utils;
+
+export {
+     protocolTVL, total_rewards_accrued, total_stake_withdrawn, total_stAsset_Minted,
+     validAssetCoinType, StakePrivateState, Stake, StakeStatus, stakings,
+     QualifiedCoinInfo, CoinInfo, SCALE_FACTOR, admins, stakePoolStatus, StakePoolStatus
+};
+
+/** Initialize the contract with admin specified parameters */
+constructor(
+     initialNonce: Bytes<32>, 
+     initValidAssetCoinType: Bytes<32>, 
+     initMintDomain: Bytes<32>,
+     initDelegationContractAddress: Bytes<32>
+     ) {
+     nonce = disclose(initialNonce);
+     validAssetCoinType = disclose(initValidAssetCoinType);
+     mintCounter.increment(1);
+     stAssetDomainSeparator = disclose(initMintDomain);
+     SCALE_FACTOR = 1000000;
+     superAdmin = ownPublicKey().bytes;
+     delegationContractAddress = disclose(initDelegationContractAddress);
+}
+
+/** STAKER FUNCTIONALITIES */
+export circuit stake(coin: CoinInfo): []{
+     const disclosedCoin = disclose(coin);
+     const userPk = ownPublicKey().bytes;
+     const stakerId = generateStakerId(disclose(secrete_key()));
+     assert (disclosedCoin.value > 0, "Insufficient Funds provide for staking");
+     
+     /** Mint token to the user */ 
+     const amountMintable = calculateMintCapacity(disclosedCoin.value);
+     mintNewToken(amountMintable as Uint<64>);
+     /** Handle funds sent to contract */
+     recieveAndAddCoinToTvl(disclosedCoin);
+     /** If user already has a stake position, then update their stake info */
+     if(stakings.member(userPk)){
+          const stake = stakings.lookup(userPk);
+          assert (stakerId == stake.staker_id, "Can not add to stake: You are not the oowner");
+          const privateState = disclose(get_stake_private_state());
+          const stakeHash = generatePrivateStateHash(privateState, userPk);
+          assert (stakeHash == stake.stake_hash, "Can not add to stake: You are not the owner");
+
+          const updatedPrivatState = StakePrivateState {
+               ...privateState,
+               deposit_amount: privateState.deposit_amount + disclosedCoin.value as Uint<64>,
+               stAssets_minted: privateState.stAssets_minted + amountMintable as Uint<64>
+          };
+          /** Update staker state onchain & offchain */
+          update_stake_private_state(updatedPrivatState);
+
+          const newStakeHash = generatePrivateStateHash(updatedPrivatState, userPk);
+          stakings.insert(userPk, Stake {
+               ...stake,
+               stake_hash: newStakeHash,
+               status: StakeStatus.open
+          });
+     }else{
+          const newPrivateState = StakePrivateState {
+               ...default<StakePrivateState>,
+               deposit_amount: disclosedCoin.value as Uint<64>,
+               stAssets_minted: amountMintable as Uint<64>
+          };
+          /** Update staker's private state */
+          update_stake_private_state(newPrivateState);
+          
+          const newStakeHash = generatePrivateStateHash(newPrivateState, userPk);
+          
+          const newStake = Stake {
+               ...default<Stake>,
+               staker_id: stakerId,
+               stake_hash: newStakeHash,
+               created_at: disclose(get_current_time())
+          };
+
+          stakings.insert(userPk, newStake);
+     }
+}
+
+export circuit redeem(): []{
+     /** Ensure that protocolTVL plus delegation reward is available for redemption */
+     assert (stakePoolStatus == StakePoolStatus.available, "Delegation has already proceeded");
+     const userPk = ownPublicKey().bytes;
+     const stakerId = generateStakerId(disclose(secrete_key()));
+     assert (stakings.member(userPk), "You do not have any stakes in the pool");
+     const stake = stakings.lookup(userPk);
+     assert (stake.status == StakeStatus.open, "Delegation has already proceeded");
+     assert (stakerId == stake.staker_id, "Can not add to stake: You are not the owner");
+
+     const privateState = disclose(get_stake_private_state());
+     const stakeHash = generatePrivateStateHash(privateState, userPk);
+     assert (stakeHash == stake.stake_hash, "Can not add to stake: You are not the owner");
+     assert (stake.status == StakeStatus.open, "Already reemed stake for specified position");
+     
+     /** Dtermine redeemable asset balance */
+     const exchangeRate = ScaledDivisionFunction((protocolTVL.value * SCALE_FACTOR) as Uint<64>, total_stAsset_Minted as Uint<64>);
+     const redeemableAsset = ScaledDivisionFunction((privateState.stAssets_minted * exchangeRate) as Uint<64>, SCALE_FACTOR);
+     /** Return fund plus rewards to the staker */
+     sendAndManageChange(redeemableAsset, ownPublicKey());
+     update_stake_private_state(StakePrivateState{
+          ...privateState,
+          deposit_amount: 0,
+          redeemable: 0,
+     });
+
+     const updatedStake = Stake {
+          ...stake,
+          status: StakeStatus.closed
+     };
+
+     stakings.insert(userPk, updatedStake);
+}
+
+
+
+/** DELEGATOR FUNCTIONALITIES */
+export circuit recieveDelegateReward(coin: CoinInfo): []{
+     const disclosedCoin = disclose(coin);
+     /** Recieve coin deposit from the third party contract */
+     recieveAndAddCoinToTvl(disclosedCoin);
+     total_rewards_accrued = (total_rewards_accrued as Uint<64>) + disclosedCoin.value as Uint<64>;
+     /** Change pool status to enable withdrawal */
+     stakePoolStatus = StakePoolStatus.available; 
+}
+
+
+
+/** ADMIN FUNCTIONALITIES */
+/** Delegates protocol funds to third party  */
+export circuit delegate(): Boolean{
+     const userPk = ownPublicKey().bytes;
+     assert (userPk == superAdmin || admins.member(userPk), "Unauthorized to delegate protocol asset");
+     
+     send(protocolTVL, right<ZswapCoinPublicKey, ContractAddress>(
+          ContractAddress {
+               bytes: delegationContractAddress
+          }
+     ), protocolTVL.value);
+
+     stakePoolStatus = StakePoolStatus.delegated;
+     
+     return true;
+}
+
+/** Update admin access */
+export circuit addNewAdmin(adminCpk: Bytes<32>): [] {
+     assert (ownPublicKey().bytes == superAdmin, "Unauthorized to add new admin");
+
+     admins.insert(disclose(adminCpk));
+}
+
+export circuit removeNewAdmin(adminCpk: Bytes<32>): [] {
+     assert (ownPublicKey().bytes == superAdmin, "Unauthorized to add new admin");
+
+     admins.remove(disclose(adminCpk));
+}
+
