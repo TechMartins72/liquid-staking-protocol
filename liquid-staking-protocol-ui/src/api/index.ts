@@ -11,14 +11,14 @@ import {
 } from "@repo/hydra-stake-protocol";
 import {
   type DeployedHydraStakeContract,
-  type DerivedState,
   type HydraStakeContract,
   type HydraStakeContractProvider,
   HydraStakePrivateStateKey,
+  type LedgerInfo,
 } from "./common-types.js";
 import { toHex } from "@midnight-ntwrk/midnight-js-utils";
 import {
-  getStakesInfo,
+  getLedgerRefinedData,
   randomNonceBytes,
   stringTo32ByteArray,
 } from "./utils.js";
@@ -37,12 +37,12 @@ const HydraStakeContractInstance: HydraStakeContract = new Contract(witnesses);
 
 export interface DeployedHydraStakeAPI {
   readonly deployedContractAddress: ContractAddress;
-  readonly state$: Observable<DerivedState>;
+  readonly state$: Observable<LedgerInfo>;
 }
 
 export class HydraStakeAPI implements DeployedHydraStakeAPI {
   public readonly deployedContractAddress: ContractAddress;
-  readonly state$: Observable<DerivedState>;
+  readonly state$: Observable<LedgerInfo>;
 
   private constructor(
     providers: HydraStakeContractProvider,
@@ -65,18 +65,16 @@ export class HydraStakeAPI implements DeployedHydraStakeAPI {
         ),
       ],
       // ...and combine them to produce the required derived state.
-      (ledgerState, privateState) => {
-        const user_pk = toHex(pureCircuits(privateState.secretKey));
-
-        return {
-          stakes: getStakesInfo(ledgerState.stakes),
-          userSecretKey: user_pk,
-        };
+      (publicState, privateState) => {
+        const userPk = toHex(
+          pureCircuits.generateStakerId(privateState.secretKey)
+        );
+        return getLedgerRefinedData(publicState, userPk);
       }
     );
   }
 
-  static deployHydraStakeContract = async (
+  static deployHydraStakePool = async (
     providers: HydraStakeContractProvider
   ) => {
     try {
@@ -86,7 +84,13 @@ export class HydraStakeAPI implements DeployedHydraStakeAPI {
           contract: HydraStakeContractInstance,
           initialPrivateState: await this.getPrivateState(providers),
           privateStateId: HydraStakePrivateStateKey,
-          args: [randomNonceBytes(32)],
+          args: [
+            randomNonceBytes(32),
+            encodeTokenType(nativeToken()),
+            stringTo32ByteArray("hydra:-stake:tdust-pool"),
+            stringTo32ByteArray(process.env.VITE_DUMMY_CONTRACT_ADDRESS as string),
+            1_000_000n,
+          ],
         }
       );
       console.log("Contract Deployed");
@@ -97,7 +101,7 @@ export class HydraStakeAPI implements DeployedHydraStakeAPI {
     }
   };
 
-  static joinHydraStakeContract = async (
+  static joinHydraStakePool = async (
     providers: HydraStakeContractProvider,
     contractAddress: ContractAddress
   ) => {
@@ -132,19 +136,35 @@ export class HydraStakeAPI implements DeployedHydraStakeAPI {
   static async redeemAsset(
     color: string,
     amount: number,
-    stakeId: string,
     deployedContract: DeployedHydraStakeContract
   ): Promise<FinalizedCallTxData<HydraStakeContract, "redeem">> {
-    const coin = {
+    const coin: CoinInfo = {
       nonce: randomNonceBytes(32),
       color: encodeTokenType(color),
       value: BigInt(amount),
     };
 
-    return await deployedContract.callTx.redeem(
-      coin,
-      stringTo32ByteArray(stakeId)
-    );
+    return await deployedContract.callTx.redeem(coin);
+  }
+
+  static async setTokenColor(
+    deployedContract: DeployedHydraStakeContract
+  ): Promise<FinalizedCallTxData<HydraStakeContract, "setTokenColor">> {
+    return await deployedContract.callTx.setTokenColor();
+  }
+
+  static async addAdmin(
+    userCPK: Uint8Array,
+    deployedContract: DeployedHydraStakeContract
+  ): Promise<FinalizedCallTxData<HydraStakeContract, "addNewAdmin">> {
+    return await deployedContract.callTx.addNewAdmin(userCPK);
+  }
+
+  static async removeAdmin(
+    userCPK: Uint8Array,
+    deployedContract: DeployedHydraStakeContract
+  ): Promise<FinalizedCallTxData<HydraStakeContract, "removeNewAdmin">> {
+    return await deployedContract.callTx.removeNewAdmin(userCPK);
   }
 
   private static async getPrivateState(

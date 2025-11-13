@@ -10,7 +10,7 @@ export {
      validAssetCoinType, StakePrivateState, Stake, StakeStatus, stakings,
      QualifiedCoinInfo, CoinInfo, SCALE_FACTOR, admins, stakePoolStatus, 
      StakePoolStatus, stAssetCoinColor, delegate, setTokenColor, removeNewAdmin, 
-     addNewAdmin
+     addNewAdmin, PoolsInfo
 };
 
 /** Initialize the contract with admin specified parameters */
@@ -35,6 +35,7 @@ export circuit stake(coin: CoinInfo): []{
      const disclosedCoin = disclose(coin);
      const userPk = ownPublicKey().bytes;
      const stakerId = generateStakerId(disclose(secrete_key()));
+     assert(disclosedCoin.color == validAssetCoinType, "The provided token type is not acceptable");
      assert (disclosedCoin.value > 0, "Insufficient Funds provide for staking");
      
      /** Mint token to the user */ 
@@ -131,8 +132,6 @@ export circuit redeem(coin: CoinInfo): []{
      stakings.insert(userPk, updatedStake);
 }
 
-
-
 /** DELEGATOR FUNCTIONALITIES */
 export circuit recieveDelegateReward(coin: CoinInfo): []{
      const disclosedCoin = disclose(coin);
@@ -144,3 +143,17 @@ export circuit recieveDelegateReward(coin: CoinInfo): []{
 }
 
 
+export circuit generateStakerId(sk: Bytes<32>): Bytes<32>{
+     return persistentHash<Vector<2, Bytes<32>>>([
+     pad(32, "hydra:staker"),
+     persistentHash<Vector<2, Bytes<32>>>([
+     sk,
+     kernel.self().bytes
+     ])
+     ]);
+}
+
+/**Simp;y serves as a storage for instanciated pools*/
+export circuit savePoolInfo(address: ContractAddress, poolName: Bytes<32>): [] {
+     PoolsInfo.insert(disclose(address), disclose(poolName));
+}

@@ -2,6 +2,8 @@ import {
   Contract,
   type HydraStakePrivateState,
   type Witnesses,
+  StakePoolStatus,
+  StakeStatus,
 } from "@repo/hydra-stake-protocol";
 import type {
   DeployedContract,
@@ -15,7 +17,8 @@ import type {
   DAppConnectorWalletAPI,
   ServiceUriConfig,
 } from "@midnight-ntwrk/dapp-connector-api";
-import type { DeployedHydraStakeAPI, HydraStakeAPI } from "./index";
+import type { HydraStakeAPI } from "./index";
+import type { ContractAddress } from "@midnight-ntwrk/zswap";
 
 export interface WalletAndProvider {
   readonly wallet: DAppConnectorWalletAPI;
@@ -45,7 +48,8 @@ export type HydraStakeContractProvider = MidnightProviders<
 >;
 
 export type DeployedHydraStakeContract =
-  FoundContract<HydraStakeContract>;
+  | FoundContract<HydraStakeContract>
+  | DeployedContract<HydraStakeContract>;
 
 export interface WalletAndProvider {
   readonly wallet: DAppConnectorWalletAPI;
@@ -74,7 +78,30 @@ export interface StakesInfoType {
   closedTime: number;
 }
 
-export type DerivedState = {
-  stakes: StakesInfoType[];
-  userSecretKey: string;
+export type PoolType = Array<[ContractAddress, string]>;
+
+export type LedgerInfo = {
+  userPk: string;
+  pools: PoolType;
+  total_stAsset_Minted: number;
+  total_rewards_accrued: number;
+  total_stake_withdrawn: number;
+  protocolTVL: number;
+  stakePoolStatus: StakePoolStatus;
+  stakings: Stakes;
+  admins: string[];
+  assetCoinColor: string;
+  SCALE_FACTOR: number;
 };
+
+export type Stakes = Array<
+  [
+    string,
+    {
+      stakeId: string;
+      stakeHash: string;
+      status: StakeStatus;
+      createAt: number;
+    },
+  ]
+>;

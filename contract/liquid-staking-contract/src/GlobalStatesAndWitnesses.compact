@@ -25,6 +25,8 @@ module GlobalStatesAndWitnesses{
     export ledger mintCounter: Counter;
     export sealed ledger stAssetDomainSeparator: Bytes<32>;
 
+    /**Keeps track of the information about every pool instace: inefficient, but applicable for demo sake*/
+    export ledger PoolsInfo: Map<ContractAddress, Bytes<32>>;
 
     /** Enable token decimal representation */
     export sealed ledger SCALE_FACTOR: Uint<32>; // 1_000_000 SUBUNITS PER UNIT ASSET
