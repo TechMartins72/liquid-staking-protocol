@@ -10,7 +10,7 @@ export {
      validAssetCoinType, StakePrivateState, Stake, StakeStatus, stakings,
      QualifiedCoinInfo, CoinInfo, SCALE_FACTOR, admins, stakePoolStatus, 
      StakePoolStatus, stAssetCoinColor, delegate, setTokenColor, removeNewAdmin, 
-     addNewAdmin
+     addNewAdmin, stAssetDomainSeparator, delegationContractAddress
 };
 
 /** Initialize the contract with admin specified parameters */
@@ -39,7 +39,7 @@ export circuit stake(coin: CoinInfo): []{
      
      /** Mint token to the user */ 
      const amountMintable = calculateMintCapacity(disclosedCoin.value);
-     mintNewToken(amountMintable as Uint<64>);
+     mintNewToken(amountMintable);
      /** Handle funds sent to contract */
      recieveAndAddCoinToTvl(disclosedCoin);
      /** If user already has a stake position, then update their stake info */

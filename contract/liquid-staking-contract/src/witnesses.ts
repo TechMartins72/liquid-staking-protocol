@@ -13,7 +13,7 @@ export type HydraStakePrivateState = {
 
 export interface LedgerMapItem<T> {
   key: Uint8Array;
-  state: T; 
+  state: T;
 }
 
 export interface LedgerMap<T> {
@@ -51,6 +51,7 @@ export const witnesses = {
     state.privateState.secretKey;
     return [state.privateState, state.privateState.secretKey];
   },
+
   divide: (
     { privateState }: WitnessContext<Ledger, HydraStakePrivateState>,
     numerator: bigint, //Scalled by 1_000_000n
@@ -66,9 +67,9 @@ export const witnesses = {
   get_stake_private_state: ({
     privateState,
   }: WitnessContext<Ledger, HydraStakePrivateState>): [
-    HydraStakePrivateState,
-    StakePrivateState,
-  ] => {
+      HydraStakePrivateState,
+      StakePrivateState,
+    ] => {
     return [privateState, privateState.stakeMetadata];
   },
 
@@ -89,9 +90,9 @@ export const witnesses = {
   get_current_time: ({
     privateState,
   }: WitnessContext<Ledger, HydraStakePrivateState>): [
-    HydraStakePrivateState,
-    bigint,
-  ] => {
+      HydraStakePrivateState,
+      bigint,
+    ] => {
     return [privateState, BigInt(Date.now())];
   },
 
@@ -109,12 +110,12 @@ export const witnesses = {
         pool_stake_amount: Number(delegate_amount),
         contractAddress: contractAddress
       })
-      .then((apiResponse) => apiResponse.status == 200)
-      .catch((error) => {
-        // const errMsg = error instanceof Error ? error.message : String(error);
-        // throw new Error(errMsg);
-      });
-      
+        .then((apiResponse) => apiResponse.status == 200)
+        .catch((error) => {
+          // const errMsg = error instanceof Error ? error.message : String(error);
+          // throw new Error(errMsg);
+        });
+
       return [privateState, true];
     } catch (error) {
       throw new Error(error instanceof Error ? error.message : String(error));

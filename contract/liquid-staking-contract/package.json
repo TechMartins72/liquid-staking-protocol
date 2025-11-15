@@ -17,7 +17,7 @@
   },
   "scripts": {
     "test": "vitest",
-    "compile": "compact compile --skip-zk ./src/hydra-stake-protocol.compact src/managed/hydra-stake-protocol",
+    "compile": "compact compile ./src/hydra-stake-protocol.compact src/managed/hydra-stake-protocol",
     "test-compile": "compact compile --skip-zk ./src/hydra-stake-protocol.compact src/managed/hydra-stake-protocol",
     "build": "rm -rf dist && tsc --project tsconfig.build.json && cp -R ./src/managed ./dist/managed && cp ./src/hydra-stake-protocol.compact dist"
   },
