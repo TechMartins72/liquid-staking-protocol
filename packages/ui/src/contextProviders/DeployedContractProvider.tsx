@@ -1,170 +1,102 @@
-// import {
-//   HydraStakeAPI,
-//   type DeploymentParams,
-//   type HydraStakeContractProvider,
-//   type LedgerInfo,
-// } from "../api/index";
-// import type { Logger } from "pino";
-// import {
-//   createContext,
-//   useContext,
-//   useState,
-//   type PropsWithChildren,
-// } from "react";
-// import { DappContext } from "./DappContextProvider";
-// import type { ContractAddress } from "@midnight-ntwrk/zswap";
-// import { MidnightWalletContext } from "./MidnightWalletProvider";
+import useNewMidnightWallet from "@/hooks/useNewMidnight";
+import { HydraAPI, hydraStakePrivateStateId, type DeployedHydraAPI, type DerivedHydraStakeContractState, type HydraStakeContractProviders } from "@hydra/hydra-stake-api";
+import type { HydraStakePrivateState } from "@hydra/hydra-stake-protocol";
+import React, { useEffect, useState, type ReactNode } from "react"
 
-// export interface DeploymentProvider {
-//   readonly isJoining: boolean;
-//   readonly hasJoined: boolean;
-//   readonly deployedHydraStakeApi: HydraStakeAPI | undefined;
-//   readonly contractState: LedgerInfo | undefined;
-//   joinPool: (
-//     contractAddress: ContractAddress,
-//     providers: HydraStakeContractProvider
-//   ) => Promise<void>;
-//   deployNewPool: (
-//     providers: HydraStakeContractProvider,
-//     deploymentParams: DeploymentParams
-//   ) => Promise<void>;
-// }
 
-// export const DeployedContractContext = createContext<DeploymentProvider | null>(
-//   null
-// );
+interface DeployedContractContextType {
+    contractState: DerivedHydraStakeContractState | undefined;
+    deployedHydraAPI: DeployedHydraAPI | undefined;
+    privateState: HydraStakePrivateState | undefined;
+    isJoining: boolean;
+    error: string;
+    hasJoined: boolean;
+    joinStakePool: (contractAddres: string, providers?: HydraStakeContractProviders) => Promise<void>;
+}
 
-// interface DeployedContractProviderProps extends PropsWithChildren {
-//   logger?: Logger;
-//   contractAddress?: string;
-// }
+export const DeployedContractContext = React.createContext<DeployedContractContextType | null>(null);
 
-// export const DeployedContractProvider = ({
-//   children,
-//   logger,
-// }: DeployedContractProviderProps) => {
-//   const { hasConnected } = useContext(MidnightWalletContext)!;
-//   const [deployedHydraStakeApi, setDeployedHydraStakeApi] = useState<
-//     HydraStakeAPI | undefined
-//   >(undefined);
-//   const [isJoining, setIsJoining] = useState<boolean>(false);
-//   const [isDeploying, setIsDeploying] = useState<boolean>(false);
-//   const [contractState, setContractState] = useState<LedgerInfo | undefined>(
-//     undefined
-//   );
-//   const [hasJoined, setHasJoined] = useState<boolean>(false);
-//   const { setNotification } = useContext(DappContext)!;
+const DeployedContractProvider = ({ children }: { children: ReactNode }) => {
+    const [contractState, setContractState] = useState<DerivedHydraStakeContractState | undefined>();
+    const [deployedHydraAPI, setDeployedHydraAPI] = useState<DeployedHydraAPI | undefined>();
+    const [privateState, setPrivateState] = useState<HydraStakePrivateState | undefined>();
+    const [isJoining, setIsJoining] = useState(false);
+    const [hasJoined, setHasJoined] = useState(false);
+    const [error, setError] = useState("")
 
-//   const joinPool = async (
-//     contractAddress: ContractAddress,
-//     providers: HydraStakeContractProvider
-//   ) => {
-//     if (isJoining || hasJoined || isDeploying) return;
-//     if (!hasConnected) {
-//       setNotification({
-//         type: "error",
-//         message: "Wallet must be connected before joining contract",
-//       });
-//       return;
-//     }
+    /** Use providers from wallet context */
+    const walletContext = useNewMidnightWallet();
 
-//     if (!providers) {
-//       setNotification({
-//         type: "error",
-//         message: "Provider not configured",
-//       });
-//       return;
-//     }
+    const joinStakePool = async (contractAddress: string, providers?: HydraStakeContractProviders) => {
+        console.log("Trying to join contract with specified address", contractAddress)
+        const providersToUse = providers ?? walletContext.providers;
 
-//     setIsJoining(true);
-//     setNotification(null);
-//     try {
-//       const deployedAPI = await HydraStakeAPI.joinHydraStakePool(
-//         providers,
-//         contractAddress
-//       );
-//       setDeployedHydraStakeApi(deployedAPI);
-//       console.log({ deployedAPI });
-//       setNotification({
-//         type: "success",
-//         message: "Contract joined Successfully",
-//       });
-//       setHasJoined(true);
-//       console.log({ API: deployedAPI });
-//     } catch (error) {
-//       const errMsg =
-//         error instanceof Error ? error.message : "Failed to deploy contract";
-//       setNotification({
-//         type: "error",
-//         message: "An error occured",
-//       });
-//       logger?.error("Failed to deploy contract" + errMsg);
-//     } finally {
-//       setIsJoining(false);
-//     }
-//   };
+        if (providersToUse == undefined) throw new Error("Failed to get wallet providers");
+        setIsJoining(true);
+        try {
+            const api = await HydraAPI.joinHydraStakeContract(
+                providersToUse,
+                contractAddress
+            )
+            console.log("Deployed api")
+            setDeployedHydraAPI(api);
+            setIsJoining(false);
+            setHasJoined(true);
+        } catch (error) {
+            const errMsg = error instanceof Error ? error.message : String(error);
+            setError(errMsg);
+            setIsJoining(false);
+        } finally {
+            setError("");
+            setIsJoining(false)
+        }
+    }
 
-//   const deployNewPool = async (
-//     providers: HydraStakeContractProvider,
-//     deploymentParams: Omit<DeploymentParams, "initialNonce">
-//   ) => {
-//     //confirm if user is admin: authorized function
 
-//     try {
-//       if (isJoining || hasJoined || isDeploying) return;
-//       if (!hasConnected) {
-//         setNotification({
-//           type: "error",
-//           message: "Wallet must be connected before joining contract",
-//         });
-//         return;
-//       }
+    const context: DeployedContractContextType = {
+        deployedHydraAPI,
+        contractState,
+        privateState,
+        isJoining,
+        error,
+        hasJoined,
+        joinStakePool
+    }
 
-//       if (!providers) {
-//         setNotification({
-//           type: "error",
-//           message: "Provider not configured",
-//         });
-//         return;
-//       }
-//       setIsJoining(true);
-//       setNotification(null);
-//       const deployedAPI = await HydraStakeAPI.deployHydraStakePool(
-//         providers,
-//         deploymentParams
-//       );
-//       setDeployedHydraStakeApi(deployedAPI);
-//       setNotification({
-//         type: "success",
-//         message: "Contract joined Successfully",
-//       });
-//       setHasJoined(true);
-//       console.log({ API: deployedAPI });
-//     } catch (error) {
-//       const errMsg =
-//         error instanceof Error ? error.message : "Failed to deploy contract";
-//       setNotification({
-//         type: "error",
-//         message: "An error occured",
-//       });
-//       logger?.error("Failed to deploy contract" + errMsg);
-//     } finally {
-//       setIsJoining(false);
-//     }
-//   };
+    useEffect(() => {
+        if (!deployedHydraAPI) return;
 
-//   const contextValue: DeploymentProvider = {
-//     isJoining,
-//     hasJoined,
-//     deployedHydraStakeApi,
-//     joinPool,
-//     deployNewPool,
-//     contractState,
-//   };
+        const state = deployedHydraAPI.state.subscribe((state) => {
+            setContractState(state);
+            console.log(`Current state ${state}`)
+        })
 
-//   return (
-//     <DeployedContractContext.Provider value={contextValue}>
-//       {children}
-//     </DeployedContractContext.Provider>
-//   );
-// };
+        return () => state.unsubscribe();
+
+    }, [deployedHydraAPI])
+
+    useEffect(() => {
+        if (!deployedHydraAPI && !walletContext.providers) {
+            console.log("Failed to retrieve contract api");
+            return;
+        };
+
+        (async function getPrivateState() {
+            const storedPrivateState = await walletContext.providers?.privateStateProvider.get(hydraStakePrivateStateId);
+
+            if (!storedPrivateState) return;
+
+            setPrivateState(storedPrivateState);
+        })();
+
+    }, [hasJoined, deployedHydraAPI]);
+
+
+
+    return <DeployedContractContext.Provider value={context}>
+        {children}
+    </DeployedContractContext.Provider>
+}
+
+
+export default DeployedContractProvider;

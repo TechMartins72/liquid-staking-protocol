@@ -18,7 +18,7 @@ const StakingModal = ({ onClose, onComplete }: StakingModalProps) => {
   const [currentStep, setCurrentStep] = useState<StepType>("amount");
   const [amount, setAmount] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
-  const [transactionId, setTransactionId] = useState<string>("");
+  const [transactionId, _] = useState<string>("");
 
   const handleCreateStake = async () => {
     if (currentStep === "amount") {
@@ -36,7 +36,7 @@ const StakingModal = ({ onClose, onComplete }: StakingModalProps) => {
       setCurrentStep("processing");
       setIsProcessing(true);
       await deployedHydraAPI.stake(
-        Number(amount) * Number(contractState.scaleFactor)
+        Number(amount)
       );
       setCurrentStep("complete");
     } else if (currentStep === "complete") {

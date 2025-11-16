@@ -44,6 +44,7 @@ const Dashboard = () => {
   } = useContext(MidnightWalletContext)!;
   const { setNotification, setIsStakingOpen } = useContext(DappContext)!;
   const [isRedeeming, setIsRedeeming] = useState<boolean>(false);
+  const SCALE_FACTOR = contractState ? contractState.scaleFactor : BigInt(1_000_000);
 
   // Mock user data - replace with actual data from your context/API
   const [userStats] = useState({
@@ -55,18 +56,28 @@ const Dashboard = () => {
 
   // Redeem handler
   const handleRedeemStake = async () => {
+    setIsRedeeming(true);
     try {
       if (!deployedHydraAPI) {
         return;
       }
 
-      setIsRedeeming(true);
       await deployedHydraAPI.redeem(
         Number(privateState?.stakeMetadata.stAssets_minted)
       );
+
+      setNotification({
+        type: "success",
+        message: "Redeemed successfully"
+      })
+
+      setIsRedeeming(false);
     } catch (error) {
       console.log({ error });
-    } finally {
+      setNotification({
+        type: "error",
+        message: "Failed to redeemed"
+      })
       setIsRedeeming(false);
     }
   };
@@ -91,9 +102,9 @@ const Dashboard = () => {
                   hasConnected
                     ? setIsStakingOpen(true)
                     : setNotification({
-                        type: "error",
-                        message: "Connect wallet to stake",
-                      });
+                      type: "error",
+                      message: "Connect wallet to stake",
+                    });
                 }}
                 className="px-8 py-3 bg-accent text-accent-foreground rounded-xl font-semibold hover:shadow-lg hover:glow-accent-hover transition-all duration-300 flex items-center gap-2 whitespace-nowrap cursor-pointer"
               >
@@ -128,7 +139,7 @@ const Dashboard = () => {
                     <div className="h-9 w-32 bg-purple-500/10 animate-pulse rounded" />
                   ) : (
                     <p className="text-3xl font-bold text-white mb-1">
-                      {privateState?.stakeMetadata.stAssets_minted} sttDUST
+                      {privateState ? privateState?.stakeMetadata.stAssets_minted / SCALE_FACTOR : 0} sttDUST
                     </p>
                   )}
                 </div>
@@ -139,15 +150,14 @@ const Dashboard = () => {
                       <DollarSign className="w-5 h-5 text-emerald-400" />
                     </div>
                     <h3 className="text-sm font-medium text-gray-300">
-                      {privateState?.stakeMetadata.deposit_amount}
+                      {privateState ? privateState?.stakeMetadata.deposit_amount / SCALE_FACTOR : 0}
                     </h3>
                   </div>
                   {isLoadingState ? (
                     <div className="h-9 w-32 bg-emerald-500/10 animate-pulse rounded" />
                   ) : (
                     <p className="text-3xl font-bold text-white mb-1">
-                      {privateState?.stakeMetadata.redeemable! -
-                        privateState?.stakeMetadata.deposit_amount!}{" "}
+                      {privateState ? privateState.stakeMetadata.redeemable / SCALE_FACTOR : 0}
                       tDUST
                     </p>
                   )}
@@ -183,6 +193,7 @@ const Dashboard = () => {
               <h2 className="text-2xl md:text-3xl font-bold bg-linear-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
                 Pools
               </h2>
+              
             </div>
             <div className="flex flex-col justify-center items-center w-full gap-4">
               <PoolCard
@@ -244,7 +255,7 @@ const Dashboard = () => {
                 ) : (
                   <>
                     <p className="text-3xl font-bold text-white mb-1">
-                      {String(contractState?.totalMint) ?? 0}
+                      {String(contractState ? contractState.totalMint / SCALE_FACTOR : 0)}
                     </p>
                     <p className="text-sm text-blue-400">sttDUST</p>
                   </>
@@ -265,7 +276,7 @@ const Dashboard = () => {
                 ) : (
                   <>
                     <p className="text-3xl font-bold text-white mb-1">
-                      {String(contractState?.protocolTVL.value) ?? 0}
+                      {String(contractState ? contractState.protocolTVL.value / SCALE_FACTOR : 0)}
                     </p>
                     <p className="text-sm text-violet-400">tDUST</p>
                   </>

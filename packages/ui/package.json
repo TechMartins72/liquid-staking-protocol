@@ -6,8 +6,9 @@
   "scripts": {
     "dev": "vite",
     "start": "http-server --port 0 ./dist",
-    "build": "tsc && vite build --mode testnet && cp -r ../contract/dist/managed/hydra-stake-protocol/keys ./dist/keys && cp -r ../contract/dist/managed/hydra-stake-protocol/zkir ./dist/zkir",
-    "preview": "vite preview"
+    "prebuild": "tsc && vite build --mode testnet && cp -r ../contract/dist/managed/hydra-stake-protocol/keys ./dist/keys && cp -r ../contract/dist/managed/hydra-stake-protocol/zkir ./dist/zkir",
+    "preview": "vite preview",
+    "build": "tsc && vite build --mode testnet && cp -r ../contract/dist/managed/hydra-stake-protocol/keys ./dist/keys && cp -r ../contract/dist/managed/hydra-stake-protocol/zkir ./dist/zkir"
   },
   "dependencies": {
     "@originjs/vite-plugin-commonjs": "^1.0.3",

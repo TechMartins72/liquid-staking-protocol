@@ -47,7 +47,7 @@ import {
   getLedgerNetworkId,
   getZswapNetworkId,
 } from "@midnight-ntwrk/midnight-js-network-id";
-import { nativeToken, Transaction } from "@midnight-ntwrk/ledger";
+import { Transaction } from "@midnight-ntwrk/ledger";
 import { noProofClient, proofClient } from "./providers/proofProvider";
 import { WrappedZKConfigProvider } from "./providers/zkConfigProvider";
 import type { HydraStakePrivateState } from "@hydra/hydra-stake-protocol";
@@ -158,15 +158,16 @@ const MidnightWalletProvider = ({
       return;
     }
 
-    const params: DeploymentParams = {
-      validAssetContractAddress: nativeToken(),
-      mintDomain: "hydra-stake:tdust-pool",
-      deleglationContractAddress: import.meta.env.VITE_DUMMY_CONTRACT_ADDRESS,
-      scaleFactor: 1000000n,
-    };
+    // const params: DeploymentParams = {
+    //   validAssetContractAddress: nativeToken(),
+    //   mintDomain: "hydra-stake:tdust-pool",
+    //   deleglationContractAddress: import.meta.env.VITE_DUMMY_CONTRACT_ADDRESS,
+    //   scaleFactor: 1000000n,
+    // };
 
     console.log("joining...");
-    deployNewPool(params);
+    const contractAddress = import.meta.env.VITE_CONTRACT_ADDRESS;
+    joinPool(contractAddress);
     console.log("joined");
   }, [providers]);
 
