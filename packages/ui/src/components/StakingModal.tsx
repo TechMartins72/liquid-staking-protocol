@@ -35,9 +35,7 @@ const StakingModal = ({ onClose, onComplete }: StakingModalProps) => {
 
       setCurrentStep("processing");
       setIsProcessing(true);
-      await deployedHydraAPI.stake(
-        Number(amount)
-      );
+      await deployedHydraAPI.stake(Number(amount));
       setCurrentStep("complete");
     } else if (currentStep === "complete") {
       onComplete(true, `Successfully staked ${amount} tDUST!`);
@@ -80,7 +78,7 @@ const StakingModal = ({ onClose, onComplete }: StakingModalProps) => {
           {/* Header */}
           <div className="border-b border-border/50 p-6 flex items-center justify-between">
             <h2 className="text-2xl font-bold text-foreground">
-              "Stake Your Asset"
+              Stake Your Asset
             </h2>
             <button
               onClick={handleReset}

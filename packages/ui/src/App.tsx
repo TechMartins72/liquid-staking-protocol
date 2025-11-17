@@ -31,7 +31,7 @@ function App() {
     setTimeout(() => setNotification(null), 4000);
   };
 
-  return hasConnected && hasJoined ? (
+  return (
     <>
       <Header />
       {route === "dashboard" && <Dashboard />}
@@ -52,12 +52,7 @@ function App() {
       <NotificationCenter notification={notification} />
       <Footer />
     </>
-  ) : (
-    <>
-      <UnauthenticatedPage />
-      <NotificationCenter notification={notification} />
-    </>
-  );
+  )
 }
 
 export default App;

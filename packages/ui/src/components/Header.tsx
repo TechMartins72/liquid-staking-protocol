@@ -1,17 +1,30 @@
 import { Wallet, History, LogOut } from "lucide-react";
 import { DappContext } from "../contextProviders/DappContextProvider";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { MidnightWalletContext } from "@/contextProviders/MidnightWalletProvider";
 
 const Header = () => {
   const { setRoute, route } = useContext(DappContext)!;
-  const [isAdmin, setIsAdmin] = useState<boolean>(false);
+  // const [isAdmin, setIsAdmin] = useState<boolean>(false);
   const [isSuperAdmin, setIsSuperAdmin] = useState<boolean>(false);
   const {
     state: { hasConnected, isConnecting, address },
     connectFn,
     disconnect,
+    contractState,
   } = useContext(MidnightWalletContext)!;
+
+  useEffect(() => {
+    if (!contractState) {
+      return;
+    }
+    setIsSuperAdmin(() => {
+      return (
+        contractState.superAdmin ===
+        import.meta.env.VITE_SUPER_ADMIN_COIN_PUBKEY
+      );
+    });
+  });
 
   return (
     <header className="border-b border-border/50 bg-background/80 backdrop-blur-sm sticky top-0 z-40">
@@ -43,23 +56,21 @@ const Header = () => {
               Dashboard
             </button>
 
-            <button
-              onClick={() => {
-                setRoute("admin");
-              }}
-              className={`px-4 py-2 rounded-lg transition-all flex items-center gap-2 cursor-pointer ${
-                route === "admin"
-                  ? "bg-accent/20 text-accent"
-                  : "text-muted-foreground hover:text-accent"
-              }`}
-            >
-              <History className="w-4 h-4" />
-              Admin
-            </button>
-
-            {/* <button className="p-2 rounded-lg hover:bg-card transition-all cursor-pointer">
-                  <Settings className="w-5 h-5 text-muted-foreground hover:text-accent transition-all" />
-                </button> */}
+            {isSuperAdmin && (
+              <button
+                onClick={() => {
+                  setRoute("admin");
+                }}
+                className={`px-4 py-2 rounded-lg transition-all flex items-center gap-2 cursor-pointer ${
+                  route === "admin"
+                    ? "bg-accent/20 text-accent"
+                    : "text-muted-foreground hover:text-accent"
+                }`}
+              >
+                <History className="w-4 h-4" />
+                Admin
+              </button>
+            )}
           </div>
           <button
             onClick={connectFn}

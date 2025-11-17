@@ -1,38 +1,16 @@
 import {
-  BarChart,
-  Bar,
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-} from "recharts";
-import { Zap, Lock, Wallet, TrendingUp, DollarSign, Award } from "lucide-react";
+  Zap,
+  Lock,
+  Wallet,
+  TrendingUp,
+  DollarSign,
+  Award,
+  BanknoteArrowDown,
+} from "lucide-react";
 import PoolCard from "./PoolCard";
 import { useContext, useState } from "react";
 import { DappContext } from "../contextProviders/DappContextProvider";
 import { MidnightWalletContext } from "@/contextProviders/MidnightWalletProvider";
-
-const stakingData = [
-  { month: "Jan", amount: 4000 },
-  { month: "Feb", amount: 5200 },
-  { month: "Mar", amount: 6800 },
-  { month: "Apr", amount: 7400 },
-  { month: "May", amount: 8900 },
-  { month: "Jun", amount: 9800 },
-];
-
-const rewardsData = [
-  { day: "Mon", rewards: 120 },
-  { day: "Tue", rewards: 150 },
-  { day: "Wed", rewards: 140 },
-  { day: "Thu", rewards: 180 },
-  { day: "Fri", rewards: 200 },
-  { day: "Sat", rewards: 190 },
-  { day: "Sun", rewards: 220 },
-];
 
 const Dashboard = () => {
   const {
@@ -44,7 +22,9 @@ const Dashboard = () => {
   } = useContext(MidnightWalletContext)!;
   const { setNotification, setIsStakingOpen } = useContext(DappContext)!;
   const [isRedeeming, setIsRedeeming] = useState<boolean>(false);
-  const SCALE_FACTOR = contractState ? contractState.scaleFactor : BigInt(1_000_000);
+  const SCALE_FACTOR = contractState
+    ? contractState.scaleFactor
+    : BigInt(1_000_000);
 
   // Mock user data - replace with actual data from your context/API
   const [userStats] = useState({
@@ -68,16 +48,16 @@ const Dashboard = () => {
 
       setNotification({
         type: "success",
-        message: "Redeemed successfully"
-      })
+        message: "Redeemed successfully",
+      });
 
       setIsRedeeming(false);
     } catch (error) {
       console.log({ error });
       setNotification({
         type: "error",
-        message: "Failed to redeemed"
-      })
+        message: "Failed to redeemed",
+      });
       setIsRedeeming(false);
     }
   };
@@ -102,9 +82,9 @@ const Dashboard = () => {
                   hasConnected
                     ? setIsStakingOpen(true)
                     : setNotification({
-                      type: "error",
-                      message: "Connect wallet to stake",
-                    });
+                        type: "error",
+                        message: "Connect wallet to stake",
+                      });
                 }}
                 className="px-8 py-3 bg-accent text-accent-foreground rounded-xl font-semibold hover:shadow-lg hover:glow-accent-hover transition-all duration-300 flex items-center gap-2 whitespace-nowrap cursor-pointer"
               >
@@ -139,7 +119,11 @@ const Dashboard = () => {
                     <div className="h-9 w-32 bg-purple-500/10 animate-pulse rounded" />
                   ) : (
                     <p className="text-3xl font-bold text-white mb-1">
-                      {privateState ? privateState?.stakeMetadata.stAssets_minted / SCALE_FACTOR : 0} sttDUST
+                      {privateState
+                        ? privateState?.stakeMetadata.stAssets_minted /
+                          SCALE_FACTOR
+                        : 0}{" "}
+                      sttDUST
                     </p>
                   )}
                 </div>
@@ -150,14 +134,19 @@ const Dashboard = () => {
                       <DollarSign className="w-5 h-5 text-emerald-400" />
                     </div>
                     <h3 className="text-sm font-medium text-gray-300">
-                      {privateState ? privateState?.stakeMetadata.deposit_amount / SCALE_FACTOR : 0}
+                      {privateState
+                        ? privateState?.stakeMetadata.deposit_amount /
+                          SCALE_FACTOR
+                        : 0}
                     </h3>
                   </div>
                   {isLoadingState ? (
                     <div className="h-9 w-32 bg-emerald-500/10 animate-pulse rounded" />
                   ) : (
                     <p className="text-3xl font-bold text-white mb-1">
-                      {privateState ? privateState.stakeMetadata.redeemable / SCALE_FACTOR : 0}
+                      {privateState
+                        ? privateState.stakeMetadata.redeemable / SCALE_FACTOR
+                        : 0}
                       tDUST
                     </p>
                   )}
@@ -186,14 +175,28 @@ const Dashboard = () => {
 
           {/* Pools Section */}
           <div className="glass rounded-3xl p-8 border border-blue-500/20 bg-linear-to-br from-blue-950/40 via-indigo-950/20 to-transparent">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="p-2 rounded-lg bg-blue-500/20">
-                <Lock className="w-6 h-6 text-blue-400" />
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex gap-2 justify-center">
+                <div className="p-2 rounded-lg bg-blue-500/20">
+                  <Lock className="w-6 h-6 text-blue-400" />
+                </div>
+                <h2 className="text-2xl md:text-3xl font-bold bg-linear-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+                  Pools
+                </h2>
               </div>
-              <h2 className="text-2xl md:text-3xl font-bold bg-linear-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
-                Pools
-              </h2>
-              
+              <button
+                onClick={handleRedeemStake}
+                disabled={
+                  isRedeeming ||
+                  (privateState
+                    ? privateState?.stakeMetadata.deposit_amount > 0n
+                    : false)
+                }
+                className="px-8 py-3 bg-accent text-accent-foreground rounded-xl font-semibold hover:shadow-lg hover:glow-accent-hover transition-all duration-300 flex items-center gap-2 whitespace-nowrap cursor-pointer"
+              >
+                <BanknoteArrowDown />
+                Redeem
+              </button>
             </div>
             <div className="flex flex-col justify-center items-center w-full gap-4">
               <PoolCard
@@ -255,7 +258,11 @@ const Dashboard = () => {
                 ) : (
                   <>
                     <p className="text-3xl font-bold text-white mb-1">
-                      {String(contractState ? contractState.totalMint / SCALE_FACTOR : 0)}
+                      {String(
+                        contractState
+                          ? contractState.totalMint / SCALE_FACTOR
+                          : 0
+                      )}
                     </p>
                     <p className="text-sm text-blue-400">sttDUST</p>
                   </>
@@ -276,73 +283,16 @@ const Dashboard = () => {
                 ) : (
                   <>
                     <p className="text-3xl font-bold text-white mb-1">
-                      {String(contractState ? contractState.protocolTVL.value / SCALE_FACTOR : 0)}
+                      {String(
+                        contractState
+                          ? contractState.protocolTVL.value / SCALE_FACTOR
+                          : 0
+                      )}
                     </p>
                     <p className="text-sm text-violet-400">tDUST</p>
                   </>
                 )}
               </div>
-            </div>
-          </div>
-
-          {/* Charts */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="glass glass-hover rounded-2xl p-6 border border-border/50">
-              <h3 className="text-xl font-semibold mb-6 flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-accent glow-accent" />
-                Staking Growth
-              </h3>
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={stakingData}>
-                  <CartesianGrid
-                    strokeDasharray="3 3"
-                    stroke="rgba(0, 217, 255, 0.1)"
-                  />
-                  <XAxis stroke="rgba(232, 232, 255, 0.5)" />
-                  <YAxis stroke="rgba(232, 232, 255, 0.5)" />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: "#0A0A4D",
-                      border: "1px solid rgba(0, 217, 255, 0.3)",
-                      borderRadius: "8px",
-                    }}
-                    labelStyle={{ color: "#E8E8FF" }}
-                  />
-                  <Bar dataKey="amount" fill="#00D9FF" radius={8} />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-
-            <div className="glass glass-hover rounded-2xl p-6 border border-border/50">
-              <h3 className="text-xl font-semibold mb-6 flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-accent glow-accent" />
-                Weekly Rewards
-              </h3>
-              <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={rewardsData}>
-                  <CartesianGrid
-                    strokeDasharray="3 3"
-                    stroke="rgba(0, 217, 255, 0.1)"
-                  />
-                  <XAxis stroke="rgba(232, 232, 255, 0.5)" />
-                  <YAxis stroke="rgba(232, 232, 255, 0.5)" />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: "#0A0A4D",
-                      border: "1px solid rgba(0, 217, 255, 0.3)",
-                      borderRadius: "8px",
-                    }}
-                    labelStyle={{ color: "#E8E8FF" }}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="rewards"
-                    stroke="#00D9FF"
-                    dot={{ fill: "#00D9FF", r: 4 }}
-                    activeDot={{ r: 6 }}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
             </div>
           </div>
         </div>
