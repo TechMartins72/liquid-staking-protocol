@@ -79,6 +79,9 @@ const DEPLOY_OR_JOIN_QUESTION = `
     3. Exit
 `;
 
+const ADMIN =
+  "mn_shield-cpk_test1stj87fh32cyc04upht5t52aqqayn8424ypkw28sypjp4tdhwkq5sfh3y0p";
+
 const resolve = async (
   providers: HydraStakeContractProviders,
   rli: Interface,
@@ -90,11 +93,19 @@ const resolve = async (
     const choice = await rli.question(DEPLOY_OR_JOIN_QUESTION);
     switch (choice) {
       case "1":
-        api = await HydraAPI.deployHydraStakeContract(providers, {
-          mintDomain: await rli.question("Specify token domain seperator"),
-          deleglationContractAddress: await rli.question("Specify delegate contract address"),
-          scaleFactor: BigInt(Number(await rli.question("Specify token scale factor")))
-        }, logger);
+        api = await HydraAPI.deployHydraStakeContract(
+          providers,
+          {
+            mintDomain: await rli.question("Specify token domain seperator"),
+            deleglationContractAddress: await rli.question(
+              "Specify delegate contract address"
+            ),
+            scaleFactor: BigInt(
+              Number(await rli.question("Specify token scale factor"))
+            ),
+          },
+          logger
+        );
         logger.info(
           `Deployed contract at address: ${api.deployedContractAddress}`
         );
@@ -121,26 +132,38 @@ const displayLedgerState = async (
 ): Promise<void> => {
   const contractAddress =
     deployedStateraContract.deployTxData.public.contractAddress;
-  const ledgerState = await getHydraStakeLedgerState(providers, contractAddress);
+  const ledgerState = await getHydraStakeLedgerState(
+    providers,
+    contractAddress
+  );
   if (ledgerState === null) {
     logger.info(
       `There is no token mint contract deployed at ${contractAddress}`
     );
   } else {
+    console.log(`Current admins: ${ledgerState.admins}`);
+    console.log(`Current stake pool amount is:`, ledgerState.protocolTVL);
     console.log(
-      `Current admins: ${ledgerState.admins}`
+      `Current total value minted is:`,
+      ledgerState.total_stAsset_Minted
     );
-    console.log(
-      `Current stake pool amount is:`,
-      ledgerState.protocolTVL
-    );
-    console.log(`Current total value minted is:`, ledgerState.total_stAsset_Minted);
     console.log(`Current staker:`, ledgerState.stakings);
-    console.log(`Current stake pool status:`, ledgerState.stakePoolStatus == StakePoolStatus.available ? "AVAILABLE" : "DELEGATED");
+    console.log(
+      `Current stake pool status:`,
+      ledgerState.stakePoolStatus == StakePoolStatus.available
+        ? "AVAILABLE"
+        : "DELEGATED"
+    );
     console.log(`Current mint token color is:`, ledgerState.stAssetCoinColor);
-    console.log(`Current valid asset color is:`, ledgerState.validAssetCoinType);
+    console.log(
+      `Current valid asset color is:`,
+      ledgerState.validAssetCoinType
+    );
     console.log(`Current token scaleFactor is:`, ledgerState.SCALE_FACTOR);
-    console.log(`Current third party contract address is:`, ledgerState.delegationContractAddress);
+    console.log(
+      `Current third party contract address is:`,
+      ledgerState.delegationContractAddress
+    );
   }
 };
 
@@ -148,20 +171,23 @@ const displayDerivedLedgerState = async (
   currentState: DerivedHydraStakeContractState,
   logger: Logger
 ): Promise<void> => {
-  logger.info(
-    `Current admins: ${currentState.admins}`
-  );
-  console.log(
-    `Current stake pool amount is:`,
-    currentState.protocolTVL
-  );
+  logger.info(`Current admins: ${currentState.admins}`);
+  console.log(`Current stake pool amount is:`, currentState.protocolTVL);
   console.log(`Current total value minted is:`, currentState.totalMint);
   console.log(`Current staker:`, currentState.stakings);
-  console.log(`Current stake pool status:`, currentState.stakePoolStatus == StakePoolStatus.available ? "AVAILABLE" : "DELEGATED");
+  console.log(
+    `Current stake pool status:`,
+    currentState.stakePoolStatus == StakePoolStatus.available
+      ? "AVAILABLE"
+      : "DELEGATED"
+  );
   console.log(`Current mint token color is:`, currentState.mintTokenColor);
   console.log(`Current valid asset color is:`, currentState.validAssetCoinType);
   console.log(`Current token scaleFactor is:`, currentState.scaleFactor);
-  console.log(`Current third party contract address is:`, currentState.delegationContractAddress);
+  console.log(
+    `Current third party contract address is:`,
+    currentState.delegationContractAddress
+  );
 };
 
 const getUserPrivateState = async (
@@ -178,7 +204,9 @@ const displayUserPrivateState = async (
   const privateState = await getUserPrivateState(providers);
 
   if (privateState === null)
-    logger.info(`There is no private state stored at ${hydraStakePrivateStateId}`);
+    logger.info(
+      `There is no private state stored at ${hydraStakePrivateStateId}`
+    );
   console.log(`Current collateral reserved is:`, privateState?.stakeMetadata);
   logger.info(`Current secrete-key is: ${privateState?.secretKey}`);
 };
@@ -193,7 +221,9 @@ You can do one of the following:
   5. Set coin color
   6. Stake Asset
   7. Redeem
-  8. Exit
+  8. Add Admin
+  9. Remove Admin
+  10. Exit
 
 Which would you like to do? `;
 
@@ -219,7 +249,6 @@ const circuit_main_loop = async (
     while (true) {
       const choice = await rli.question(CIRCUIT_MAIN_LOOP_QUESTION);
       switch (choice) {
-
         case "1": {
           await displayLedgerState(
             providers,
@@ -262,9 +291,7 @@ const circuit_main_loop = async (
           await hydraDeployedApi?.stake(
             Number(await rli.question("Enter stake amount: "))
           );
-          logger.info(
-            "Waiting for wallet to sync after staking..."
-          );
+          logger.info("Waiting for wallet to sync after staking...");
           await waitForWalletSyncAfterOperation(wallet, logger);
           await displayComprehensiveWalletState(wallet, currentState, logger);
           break;
@@ -276,15 +303,24 @@ const circuit_main_loop = async (
           await hydraDeployedApi?.redeem(
             Number(await rli.question("Enter stake amount to redeem: "))
           );
-          logger.info(
-            "Waiting for wallet to sync after redeeming..."
-          );
+          logger.info("Waiting for wallet to sync after redeeming...");
           await waitForWalletSyncAfterOperation(wallet, logger);
           await displayComprehensiveWalletState(wallet, currentState, logger);
           break;
         }
-
         case "8": {
+          logger.info("Adding a new admin");
+          await hydraDeployedApi?.addNewAdmin(
+            await rli.question("Enter user's coin public key: ")
+          );
+        }
+        case "9": {
+          logger.info("Removing an admin");
+          await hydraDeployedApi?.removeAdmin(
+            await rli.question("Enter user's coin public key: ")
+          );
+        }
+        case "10": {
           logger.info("Exiting.......");
           return;
         }
@@ -825,7 +861,7 @@ export const run = async (
             logger.info("Goodbye");
             process.exit(0);
           }
-        } catch (e) { }
+        } catch (e) {}
       }
     }
   }
