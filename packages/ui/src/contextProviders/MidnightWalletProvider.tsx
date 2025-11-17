@@ -164,11 +164,8 @@ const MidnightWalletProvider = ({
     //   deleglationContractAddress: import.meta.env.VITE_DUMMY_CONTRACT_ADDRESS,
     //   scaleFactor: 1000000n,
     // };
-
-    console.log("joining...");
     const contractAddress = import.meta.env.VITE_CONTRACT_ADDRESS;
     joinPool(contractAddress);
-    console.log("joined");
   }, [providers]);
 
   useEffect(() => {
@@ -176,7 +173,6 @@ const MidnightWalletProvider = ({
       return;
     }
     const subscription = deployedHydraAPI.state.subscribe((state) => {
-      console.log({ state });
       setContractState(state);
       return;
     });
@@ -338,8 +334,13 @@ const MidnightWalletProvider = ({
         coinPublicKey: connectedWalletState.coinPublicKey,
         encryptionPublicKey: connectedWalletState.encryptionPublicKey,
         wallet: wallet,
-        uris: uris,
+        uris: {
+          ...uris,
+          proverServerUri: import.meta.env.VITE_PROOF_SERVER_URI,
+        },
       };
+
+      console.log({ newWalletAPI });
 
       setWalletAPI(newWalletAPI);
       setHasConnected(true);
@@ -407,7 +408,10 @@ const MidnightWalletProvider = ({
         coinPublicKey: connectedWalletState.coinPublicKey,
         encryptionPublicKey: connectedWalletState.encryptionPublicKey,
         wallet: wallet,
-        uris: uris,
+        uris: {
+          ...uris,
+          proverServerUri: import.meta.env.VITE_PROOF_SERVER_URI as string,
+        },
       };
 
       console.log("Wallet state", newWalletAPI);
@@ -486,7 +490,6 @@ const MidnightWalletProvider = ({
         contractAddress
       );
       setDeployedHydraAPI(deployedAPI);
-      console.log({ deployedAPI });
       setNotification({
         type: "success",
         message: "Contract joined Successfully",
@@ -537,7 +540,6 @@ const MidnightWalletProvider = ({
         message: "Contract joined Successfully",
       });
       setHasJoined(true);
-      console.log({ API: deployedAPI });
     } catch (error) {
       const errMsg =
         error instanceof Error ? error.message : "Failed to deploy contract";
@@ -554,6 +556,8 @@ const MidnightWalletProvider = ({
   // Sets the wallet state as soon as the walletAPI is available after connection
   useEffect(() => {
     if (!walletAPI) return;
+
+    console.log({ proofProvider });
 
     const newState: MidnightWalletState = {
       address: walletAPI.address,

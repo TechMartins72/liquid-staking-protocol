@@ -111,14 +111,8 @@ export function createDerivedAdminArray(admins: {
   size(): bigint;
   member(elem_0: Uint8Array): boolean;
   [Symbol.iterator](): Iterator<Uint8Array>;
-}): string[] {
-  let adminsArray: string[] = [];
-
-  Array.from(admins).forEach((admin) => {
-    adminsArray.push(toHex(admin));
-  });
-
-  return adminsArray;
+}): Uint8Array[] {
+  return Array.from(admins);
 }
 
 export function pad(s: string, n: number): Uint8Array {

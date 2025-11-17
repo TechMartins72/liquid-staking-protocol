@@ -1,4 +1,13 @@
-import { combineLatest, concat, firstValueFrom, from, map, Observable, pipe, tap } from "rxjs";
+import {
+  combineLatest,
+  concat,
+  firstValueFrom,
+  from,
+  map,
+  Observable,
+  pipe,
+  tap,
+} from "rxjs";
 import {
   DeployedHydraStakeOnchainContract,
   DeploymentParams,
@@ -39,12 +48,22 @@ const HydraStakeContractInstance: HydraStakeContract = new Contract(witnesses);
 export interface DeployedHydraAPI {
   readonly deployedContractAddress: ContractAddress;
   readonly state: Observable<DerivedHydraStakeContractState>;
-  removeAdmin: (cPk: string) => Promise<FinalizedCallTxData<HydraStakeContract, "removeNewAdmin">>;
-  addNewAdmin: (cPk: string) => Promise<FinalizedCallTxData<HydraStakeContract, "addNewAdmin">>;
+  removeAdmin: (
+    cPk: string
+  ) => Promise<FinalizedCallTxData<HydraStakeContract, "removeNewAdmin">>;
+  addNewAdmin: (
+    cPk: string
+  ) => Promise<FinalizedCallTxData<HydraStakeContract, "addNewAdmin">>;
   delegate: () => Promise<FinalizedCallTxData<HydraStakeContract, "delegate">>;
-  redeem: (amount: number) => Promise<FinalizedCallTxData<HydraStakeContract, "redeem">>;
-  setMintTokenColor: () => Promise<FinalizedCallTxData<HydraStakeContract, "setTokenColor">>;
-  stake: (amount: number) => Promise<FinalizedCallTxData<HydraStakeContract, "stake">>;
+  redeem: (
+    amount: number
+  ) => Promise<FinalizedCallTxData<HydraStakeContract, "redeem">>;
+  setMintTokenColor: () => Promise<
+    FinalizedCallTxData<HydraStakeContract, "setTokenColor">
+  >;
+  stake: (
+    amount: number
+  ) => Promise<FinalizedCallTxData<HydraStakeContract, "stake">>;
 }
 
 export class HydraAPI implements DeployedHydraAPI {
@@ -82,20 +101,28 @@ export class HydraAPI implements DeployedHydraAPI {
               })
             )
           ),
-        concat(from(providers.privateStateProvider.get(hydraStakePrivateStateId))),
+        concat(
+          from(providers.privateStateProvider.get(hydraStakePrivateStateId))
+        ),
       ],
       (ledgerState, _) => {
         return {
           totalMint: ledgerState.total_stAsset_Minted,
           protocolTVL: ledgerState.protocolTVL,
-          mintTokenColor: utils.uint8arraytostring(ledgerState.stAssetCoinColor),
-          delegationContractAddress: utils.uint8arraytostring(ledgerState.delegationContractAddress),
-          superAdmin: toHex(ledgerState.superAdmin),
+          mintTokenColor: utils.uint8arraytostring(
+            ledgerState.stAssetCoinColor
+          ),
+          delegationContractAddress: utils.uint8arraytostring(
+            ledgerState.delegationContractAddress
+          ),
+          superAdmin: ledgerState.superAdmin,
           admins: utils.createDerivedAdminArray(ledgerState.admins),
           stakePoolStatus: ledgerState.stakePoolStatus,
           stakings: utils.createArrayFromLedgerMapping(ledgerState.stakings),
-          validAssetCoinType: utils.uint8arraytostring(ledgerState.validAssetCoinType),
-          scaleFactor: ledgerState.SCALE_FACTOR
+          validAssetCoinType: utils.uint8arraytostring(
+            ledgerState.validAssetCoinType
+          ),
+          scaleFactor: ledgerState.SCALE_FACTOR,
         };
       }
     );
@@ -107,18 +134,21 @@ export class HydraAPI implements DeployedHydraAPI {
     logger?: Logger
   ): Promise<HydraAPI> {
     logger?.info("deploy contract");
-    const deployedContract = await deployContract<HydraStakeContract>(providers, {
-      contract: HydraStakeContractInstance,
-      initialPrivateState: await HydraAPI.getPrivateState(providers),
-      privateStateId: hydraStakePrivateStateId,
-      args: [
-        utils.randomNonceBytes(32, logger),
-        encodeTokenType(nativeToken()),
-        utils.pad(deploymentParams.mintDomain, 32),
-        encodeContractAddress(deploymentParams.deleglationContractAddress),
-        deploymentParams.scaleFactor
-      ],
-    });
+    const deployedContract = await deployContract<HydraStakeContract>(
+      providers,
+      {
+        contract: HydraStakeContractInstance,
+        initialPrivateState: await HydraAPI.getPrivateState(providers),
+        privateStateId: hydraStakePrivateStateId,
+        args: [
+          utils.randomNonceBytes(32, logger),
+          encodeTokenType(nativeToken()),
+          utils.pad(deploymentParams.mintDomain, 32),
+          encodeContractAddress(deploymentParams.deleglationContractAddress),
+          deploymentParams.scaleFactor,
+        ],
+      }
+    );
 
     logger?.trace("Deployment successful", {
       contractDeployed: {
@@ -178,8 +208,7 @@ export class HydraAPI implements DeployedHydraAPI {
   async setMintTokenColor(): Promise<
     FinalizedCallTxData<HydraStakeContract, "setTokenColor">
   > {
-    const txData =
-      await this.allReadyDeployedContract.callTx.setTokenColor();
+    const txData = await this.allReadyDeployedContract.callTx.setTokenColor();
 
     this.logger?.trace({
       transactionAdded: {
@@ -195,16 +224,19 @@ export class HydraAPI implements DeployedHydraAPI {
     return txData;
   }
 
-  async stake(amount: number): Promise<
-    FinalizedCallTxData<HydraStakeContract, "stake">
-  > {
-    const scaleFactor = await firstValueFrom(this.state.pipe(
-      map((state) => Number(state.scaleFactor))
-    ));
-    const txData =
-      await this.allReadyDeployedContract.callTx.stake(
-        this.coin(scaleFactor * amount)
-      );
+  async stake(
+    amount: number
+  ): Promise<FinalizedCallTxData<HydraStakeContract, "stake">> {
+    console.log("Now in stake!");
+
+    const scaleFactor = 1000000;
+
+    console.log("Got here!");
+    console.log({ scaleFactor });
+
+    const txData = await this.allReadyDeployedContract.callTx.stake(
+      this.coin(scaleFactor * amount)
+    );
 
     this.logger?.trace({
       transactionAdded: {
@@ -220,16 +252,13 @@ export class HydraAPI implements DeployedHydraAPI {
     return txData;
   }
 
-  async redeem(amount: number): Promise<
-    FinalizedCallTxData<HydraStakeContract, "redeem">
-  > {
-    const scaleFactor = await firstValueFrom(this.state.pipe(
-      map((state) => Number(state.scaleFactor))
-    ));
-    const txData =
-      await this.allReadyDeployedContract.callTx.redeem(
-        this.stCoin(scaleFactor * amount)
-      );
+  async redeem(
+    amount: number
+  ): Promise<FinalizedCallTxData<HydraStakeContract, "redeem">> {
+    const scaleFactor = 1000000;
+    const txData = await this.allReadyDeployedContract.callTx.redeem(
+      this.stCoin(scaleFactor * amount)
+    );
 
     this.logger?.trace({
       transactionAdded: {
@@ -249,8 +278,7 @@ export class HydraAPI implements DeployedHydraAPI {
     FinalizedCallTxData<HydraStakeContract, "delegate">
   > {
     console.log("Retrieved scale factor");
-    const txData =
-      await this.allReadyDeployedContract.callTx.delegate();
+    const txData = await this.allReadyDeployedContract.callTx.delegate();
 
     this.logger?.trace({
       transactionAdded: {
@@ -266,14 +294,12 @@ export class HydraAPI implements DeployedHydraAPI {
     return txData;
   }
 
-  async addNewAdmin(cPk: string): Promise<
-    FinalizedCallTxData<HydraStakeContract, "addNewAdmin">
-  > {
-
-    const txData =
-      await this.allReadyDeployedContract.callTx.addNewAdmin(
-        utils.hexStringToUint8Array(cPk)
-      );
+  async addNewAdmin(
+    cPk: string
+  ): Promise<FinalizedCallTxData<HydraStakeContract, "addNewAdmin">> {
+    const txData = await this.allReadyDeployedContract.callTx.addNewAdmin(
+      utils.hexStringToUint8Array(cPk)
+    );
 
     this.logger?.trace({
       transactionAdded: {
@@ -289,14 +315,12 @@ export class HydraAPI implements DeployedHydraAPI {
     return txData;
   }
 
-  async removeAdmin(cPk: string): Promise<
-    FinalizedCallTxData<HydraStakeContract, "removeNewAdmin">
-  > {
-
-    const txData =
-      await this.allReadyDeployedContract.callTx.removeNewAdmin(
-        utils.hexStringToUint8Array(cPk)
-      );
+  async removeAdmin(
+    cPk: string
+  ): Promise<FinalizedCallTxData<HydraStakeContract, "removeNewAdmin">> {
+    const txData = await this.allReadyDeployedContract.callTx.removeNewAdmin(
+      utils.hexStringToUint8Array(cPk)
+    );
 
     this.logger?.trace({
       transactionAdded: {
@@ -320,7 +344,8 @@ export class HydraAPI implements DeployedHydraAPI {
       hydraStakePrivateStateId
     );
     return (
-      existingPrivateState ?? createHydraStakePrivateState(utils.randomNonceBytes(32))
+      existingPrivateState ??
+      createHydraStakePrivateState(utils.randomNonceBytes(32))
     );
   }
 }

@@ -109,6 +109,9 @@ export const connectWallet = async (): Promise<{
         console.info(
           "Connected to wallet connector API and retrieved service configuration"
         );
+        console.log({
+          coinPubKey: (await walletConnectorAPI.state()).coinPublicKey,
+        });
 
         return { wallet: walletConnectorAPI, uris };
       })

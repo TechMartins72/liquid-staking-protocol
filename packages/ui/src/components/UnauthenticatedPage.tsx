@@ -17,9 +17,10 @@ const UnauthenticatedPage = () => {
           <div className="p-6 bg-linear-to-r from-cyan-500 to-blue-500 rounded-xl flex items-center justify-center shadow-lg shadow-cyan-500/25">
             <Zap className="w-16 h-16 text-white" />
           </div>
-          <h3 className="text-3xl font-bold">
-            Welcome to Hydra Staking Platform
-          </h3>
+          <div className="flex flex-col justify-center items-center">
+            <p>Welcome to</p>
+            <h3 className="text-3xl font-bold">Hydra Stake Protocol</h3>
+          </div>
           <p className="text-md text-zinc-100">
             Midnight's most reliable Liquid Staking Protocol. Connect your
             wallet and get onboarded straight away
@@ -51,7 +52,10 @@ const UnauthenticatedPage = () => {
           <Zap className="w-16 h-16 text-white" />
         </div>
         <h3 className="text-3xl font-bold">
-          Welcome to Hydra Staking Platform
+          <div className="flex flex-col justify-center items-center">
+            <p>Welcome to</p>
+            <h3 className="text-3xl font-bold">Hydra Stake Protocol</h3>
+          </div>
         </h3>
         <p className="text-md text-zinc-100">
           Midnight's most reliable Liquid Staking Protocol. Connect your wallet

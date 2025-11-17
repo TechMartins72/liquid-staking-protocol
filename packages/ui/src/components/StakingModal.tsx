@@ -21,25 +21,31 @@ const StakingModal = ({ onClose, onComplete }: StakingModalProps) => {
   const [transactionId, _] = useState<string>("");
 
   const handleCreateStake = async () => {
-    if (currentStep === "amount") {
-      if (!amount || Number.parseFloat(amount) <= 0) {
-        onComplete(false, "Please enter a valid amount");
-        return;
-      }
+    try {
+      if (currentStep === "amount") {
+        if (!amount || Number.parseFloat(amount) <= 0) {
+          onComplete(false, "Please enter a valid amount");
+          return;
+        }
+        console.log("In amount");
+        setCurrentStep("confirm");
+      } else if (currentStep === "confirm") {
+        if (!contractState || !deployedHydraAPI) {
+          return;
+        }
 
-      setCurrentStep("confirm");
-    } else if (currentStep === "confirm") {
-      if (!contractState || !deployedHydraAPI) {
-        return;
+        setCurrentStep("processing");
+        setIsProcessing(true);
+        console.log("In confirm");
+        await deployedHydraAPI.stake(Number(amount));
+        console.log("...appears after staking circuit");
+        setCurrentStep("complete");
+      } else if (currentStep === "complete") {
+        onComplete(true, `Successfully staked ${amount} tDUST!`);
+        handleReset();
       }
-
-      setCurrentStep("processing");
-      setIsProcessing(true);
-      await deployedHydraAPI.stake(Number(amount));
-      setCurrentStep("complete");
-    } else if (currentStep === "complete") {
-      onComplete(true, `Successfully staked ${amount} tDUST!`);
-      handleReset();
+    } catch (error) {
+      console.log("error staking token, " + error);
     }
   };
 
