@@ -1,6 +1,6 @@
-import { Zap, Lock, Wallet, TrendingUp, DollarSign, Award } from "lucide-react";
+import { Zap, Lock, Wallet, TrendingUp, DollarSign, Award, Loader2 } from "lucide-react";
 import PoolCard from "./PoolCard";
-import { useContext, useState } from "react";
+import { useContext, useEffect } from "react";
 import { DappContext } from "../contextProviders/DappContextProvider";
 import useDeployment from "@/hooks/useDeployment";
 import useNewMidnightWallet from "@/hooks/useMidnightWallet";
@@ -41,6 +41,35 @@ const Dashboard = () => {
   //     setIsRedeeming(false);
   //   }
   // };
+
+  useEffect(() => {
+    (async () => {
+      if(walletCtx?.state.hasConnected){
+        try {
+          await deploymentCtx?.onJoinContract()
+          setNotification({
+            type: "success",
+            message: "Joined contract successfully"
+          })
+        } catch (error) {
+          const errMsg = error instanceof Error ? error.message : String(error);
+          setNotification({
+            type: "error",
+            message: errMsg
+          })
+        }finally{
+
+        }
+      }
+    })();
+  }, [walletCtx?.state])
+
+  
+  if (deploymentCtx?.isJoining) {
+    return <div className="w-full h-screen flex items-center justify-center">
+      <Loader2 className="fill-[#00d9ff] animate-spin h-32 w-32" />
+    </div>
+  }
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -99,7 +128,7 @@ const Dashboard = () => {
                     <div className="h-9 w-32 bg-purple-500/10 animate-pulse rounded" />
                   ) : (
                     <p className="text-3xl font-bold text-white mb-1">
-                      {deploymentCtx?.contractState?.stAssetMinted ??
+                      {deploymentCtx?.contractState ? (deploymentCtx?.contractState?.stAssetMinted / SCALE_FACTOR) :
                         0}
                       sttDUST
                     </p>
@@ -112,15 +141,14 @@ const Dashboard = () => {
                       <DollarSign className="w-5 h-5 text-emerald-400" />
                     </div>
                     <h3 className="text-sm font-medium text-gray-300">
-                      {deploymentCtx?.contractState?.depositAmount ??
-                        0}
+                        Stake total
                     </h3>
                   </div>
                   {deploymentCtx?.isJoining ? (
                     <div className="h-9 w-32 bg-emerald-500/10 animate-pulse rounded" />
                   ) : (
                     <p className="text-3xl font-bold text-white mb-1">
-                      {deploymentCtx?.contractState?.redeemable ?? 0}
+                      {deploymentCtx?.contractState ? (deploymentCtx?.contractState?.depositAmount / SCALE_FACTOR) : 0 } {" "}
                       tDUST
                     </p>
                   )}
@@ -139,7 +167,7 @@ const Dashboard = () => {
                     <div className="h-9 w-32 bg-amber-500/10 animate-pulse rounded" />
                   ) : (
                     <p className="text-3xl font-bold text-white mb-1">
-                      {deploymentCtx?.contractState?.redeemable ?? 0} {" "}
+                      {deploymentCtx?.contractState ? (deploymentCtx?.contractState?.redeemable / SCALE_FACTOR) : 0} {" "}
                       tDUST
                     </p>
                   )}

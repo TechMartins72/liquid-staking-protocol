@@ -1,21 +1,23 @@
 import { Wallet, History, LogOut } from "lucide-react";
 import { DappContext } from "../contextProviders/DappContextProvider";
-import { useContext } from "react";
+import { useContext, useEffect, useState } from "react";
 import useNewMidnightWallet from "@/hooks/useMidnightWallet";
+import useDeployment from "@/hooks/useDeployment";
 
 const Header = () => {
   const { setRoute, route } = useContext(DappContext)!;
   // const [isAdmin, setIsAdmin] = useState<boolean>(false);
-  // const [isSuperAdmin, setIsSuperAdmin] = useState<boolean>(false);
+  const [isSuperAdmin, setIsSuperAdmin] = useState<boolean>(false);
   const walletCtx = useNewMidnightWallet();
+  const deploymentCtx = useDeployment();
 
   useEffect(() => {
-    if (!contractState) {
+    if (!deploymentCtx?.contractState) {
       return;
     }
     setIsSuperAdmin(() => {
       return (
-        contractState.superAdmin ===
+        deploymentCtx?.contractState?.superAdmin ===
         import.meta.env.VITE_SUPER_ADMIN_COIN_PUBKEY
       );
     });

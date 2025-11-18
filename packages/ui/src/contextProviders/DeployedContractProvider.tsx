@@ -1,5 +1,5 @@
 import useMidnightWallet from "@/hooks/useMidnightWallet";
-import type { HydraStakePrivateState } from "@hydra/hydra-stake-protocol";
+// import type { HydraStakePrivateState } from "@hydra/hydra-stake-protocol";
 
 import type { Logger } from "pino";
 import {
@@ -18,7 +18,6 @@ import {
 
 export interface DeploymentProvider {
   // readonly userRole: "admin" | "user";
-  readonly privateState: HydraStakePrivateState | null;
   readonly isJoining: boolean;
   readonly error: string | null;
   readonly hasJoined: boolean;
@@ -51,8 +50,7 @@ export const DeployedContractProvider = ({
     DerivedHydraStakeContractState | undefined
   >(undefined);
   const [hasJoined, setHasJoined] = useState<boolean>(false);
-  const [privateState, setPrivateState] =
-    useState<HydraStakePrivateState | null>(null);
+
   // const [userRole, setUserRole] = useState<"admin" | "user">("user");
 
   // Use the custom hook instead of useContext directly
@@ -128,6 +126,7 @@ export const DeployedContractProvider = ({
       console.log("Current state", state);
       setContractState(state);
     });
+    
 
     return () => stateSubscription.unsubscribe();
   }, [deployedHydraAPI]);
@@ -140,7 +139,6 @@ export const DeployedContractProvider = ({
     onJoinContract,
     clearError,
     contractState,
-    privateState,
     // userRole,
   };
 

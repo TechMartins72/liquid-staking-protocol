@@ -26,10 +26,6 @@ const AdminDashboard = () => {
   const [isAddingAdmin, setIsAddingAdmin] = useState(false);
   const [isDelegating, setIsDelegating] = useState(false);
 
-  const SCALE_FACTOR = contractState
-    ? contractState.scaleFactor
-    : BigInt(1_000_000);
-
   // if(!deploymentCtx?.contractState) return;
 
   // Mock data - replace with actual data from your context
@@ -38,11 +34,11 @@ const AdminDashboard = () => {
   const handleAddAdmin = async () => {
     try {
       setIsAddingAdmin(true);
-      if (!deployedHydraAPI) {
+      if (!deploymentCtx?.deployedHydraAPI) {
         return;
       }
       console.log("Removing admin...");
-      await deployedHydraAPI.removeAdmin(newAdminAddress.trim());
+      await deploymentCtx?.deployedHydraAPI.removeAdmin(newAdminAddress.trim());
       alert("Admin Removed");
     } catch (error) {
       console.log(error);
@@ -54,11 +50,11 @@ const AdminDashboard = () => {
   const handleRemoveAdmin = async (coinPubKey: string) => {
     try {
       setIsDeleting(true);
-      if (!deployedHydraAPI) {
+      if (!deploymentCtx?.deployedHydraAPI) {
         return;
       }
       console.log("Deleting Admin");
-      await deployedHydraAPI.removeAdmin(coinPubKey);
+      await deploymentCtx?.deployedHydraAPI.removeAdmin(coinPubKey);
       alert(`Admin ${coinPubKey}, has been added successfully`);
     } catch (error) {
       console.log(error);
@@ -70,11 +66,11 @@ const AdminDashboard = () => {
   const handleDelegate = async () => {
     try {
       setIsDelegating(true);
-      if (!deployedHydraAPI) {
+      if (!deploymentCtx?.deployedHydraAPI) {
         return;
       }
       console.log("Delegating stake...");
-      await deployedHydraAPI.delegate();
+      await deploymentCtx?.deployedHydraAPI.delegate();
       alert("Stake delegated successfully");
     } catch (error) {
       console.log({ error });

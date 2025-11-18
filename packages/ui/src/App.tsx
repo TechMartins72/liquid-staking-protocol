@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext } from "react";
 import Dashboard from "./components/Dashboard";
 import Footer from "./components/Footer";
 import Header from "./components/Header";
@@ -7,9 +7,9 @@ import NotificationCenter from "./components/NotificationCenter";
 import { DappContext } from "./contextProviders/DappContextProvider";
 import NewPoolModal from "./components/NewPoolModal";
 import AdminDashboard from "./components/Admin";
-import { MidnightWalletContext } from "./contextProviders/MidnightWalletProvider";
 import UnauthenticatedPage from "./components/UnauthenticatedPage";
-import { DeployedContractContext } from "./contextProviders/DeployedContractProvider";
+import useNewMidnightWallet from "./hooks/useMidnightWallet";
+import useDeployment from "./hooks/useDeployment";
 import { Loader2 } from "lucide-react";
 
 function App() {
@@ -22,11 +22,8 @@ function App() {
     isOpenCreatePool,
     action,
   } = useContext(DappContext)!;
-  const walletContext = useContext(MidnightWalletContext);
-  const deploymentContext = useContext(DeployedContractContext);
-  // const notificationContext = useContext(DappContext);
-
-
+  const walletContext = useNewMidnightWallet();
+  const deploymentCtx = useDeployment();
 
   const handleActionComplete = (success: boolean, message: string) => {
     setNotification({ type: success ? "success" : "error", message });
@@ -34,11 +31,9 @@ function App() {
     setTimeout(() => setNotification(null), 4000);
   };
 
-
-
-  if (deploymentContext?.isJoining) {
-    return <div className="w-full h-screen flex justify-center items-center">
-      <Loader2 className="fill-[#00d9ff] h-24 w-24 animate-spin delay-1000" />
+  if (deploymentCtx?.isJoining) {
+    return <div className="w-full h-screen flex items-center justify-center">
+      <Loader2 className="fill-[#00d9ff] animate-spin h-32 w-32" />
     </div>
   }
 
@@ -63,7 +58,12 @@ function App() {
       <NotificationCenter notification={notification} />
       <Footer />
     </>
-  )
+  ) : (
+    <>
+      <UnauthenticatedPage />
+      <NotificationCenter notification={notification} />
+    </>
+  );
 }
 
 export default App;
