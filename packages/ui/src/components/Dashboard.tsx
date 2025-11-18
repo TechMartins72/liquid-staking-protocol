@@ -14,7 +14,6 @@ const Dashboard = () => {
     ? deploymentCtx?.contractState.scaleFactor
     : BigInt(1_000_000);
 
-
   // Redeem handler
   // const handleRedeemStake = async () => {
   //   setIsRedeeming(true);
@@ -100,7 +99,7 @@ const Dashboard = () => {
                     <div className="h-9 w-32 bg-purple-500/10 animate-pulse rounded" />
                   ) : (
                     <p className="text-3xl font-bold text-white mb-1">
-                      {walletCtx.privateState?.stakeMetadata.stAssets_minted ??
+                      {deploymentCtx?.contractState?.stAssetMinted ??
                         0}
                       sttDUST
                     </p>
@@ -113,14 +112,15 @@ const Dashboard = () => {
                       <DollarSign className="w-5 h-5 text-emerald-400" />
                     </div>
                     <h3 className="text-sm font-medium text-gray-300">
-                      Asset Deposited
+                      {deploymentCtx?.contractState?.depositAmount ??
+                        0}
                     </h3>
                   </div>
                   {deploymentCtx?.isJoining ? (
                     <div className="h-9 w-32 bg-emerald-500/10 animate-pulse rounded" />
                   ) : (
                     <p className="text-3xl font-bold text-white mb-1">
-                      {walletCtx.privateState?.stakeMetadata.redeemable ?? 0}
+                      {deploymentCtx?.contractState?.redeemable ?? 0}
                       tDUST
                     </p>
                   )}
@@ -139,7 +139,7 @@ const Dashboard = () => {
                     <div className="h-9 w-32 bg-amber-500/10 animate-pulse rounded" />
                   ) : (
                     <p className="text-3xl font-bold text-white mb-1">
-                      {walletCtx.privateState?.stakeMetadata.redeemable ?? 0} {" "}
+                      {deploymentCtx?.contractState?.redeemable ?? 0} {" "}
                       tDUST
                     </p>
                   )}

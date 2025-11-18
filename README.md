@@ -2,7 +2,6 @@
 
 > The only liquid staking protocol on Midnight
 
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Midnight](https://img.shields.io/badge/Built%20on-Midnight-purple.svg)](https://midnight.network)
 
 ## Overview
@@ -171,6 +170,9 @@ yarn start
 
 ```
 
+### Accepted assets
+- tDUST
+
 ### Quick Start
 
 1. **Connect Wallet**
@@ -178,7 +180,7 @@ yarn start
    - Approve the connection request
 
 2. **Stake Assets**
-   - Enter the amount you want to stake
+   - Enter the amount of tDUST you want to stake
    - Approve the transaction in Lace Wallet
    - Receive sttDust tokens in your wallet
 
