@@ -1,4 +1,12 @@
-import { Zap, Lock, Wallet, TrendingUp, DollarSign, Award, Loader2 } from "lucide-react";
+import {
+  Zap,
+  Lock,
+  Wallet,
+  TrendingUp,
+  DollarSign,
+  Award,
+  Loader2,
+} from "lucide-react";
 import PoolCard from "./PoolCard";
 import { useContext, useEffect } from "react";
 import { DappContext } from "../contextProviders/DappContextProvider";
@@ -44,31 +52,31 @@ const Dashboard = () => {
 
   useEffect(() => {
     (async () => {
-      if(walletCtx?.state.hasConnected){
+      if (walletCtx?.state.hasConnected) {
         try {
-          await deploymentCtx?.onJoinContract()
+          await deploymentCtx?.onJoinContract();
           setNotification({
             type: "success",
-            message: "Joined contract successfully"
-          })
+            message: "Joined contract successfully",
+          });
         } catch (error) {
           const errMsg = error instanceof Error ? error.message : String(error);
           setNotification({
             type: "error",
-            message: errMsg
-          })
-        }finally{
-
+            message: errMsg,
+          });
+        } finally {
         }
       }
     })();
-  }, [walletCtx?.state])
+  }, [walletCtx?.state]);
 
-  
   if (deploymentCtx?.isJoining) {
-    return <div className="w-full h-screen flex items-center justify-center">
-      <Loader2 className="fill-[#00d9ff] animate-spin h-32 w-32" />
-    </div>
+    return (
+      <div className="w-full h-screen flex items-center justify-center">
+        <Loader2 className="fill-[#00d9ff] animate-spin h-32 w-32" />
+      </div>
+    );
   }
 
   return (
@@ -128,8 +136,10 @@ const Dashboard = () => {
                     <div className="h-9 w-32 bg-purple-500/10 animate-pulse rounded" />
                   ) : (
                     <p className="text-3xl font-bold text-white mb-1">
-                      {deploymentCtx?.contractState ? (deploymentCtx?.contractState?.stAssetMinted / SCALE_FACTOR) :
-                        0}
+                      {deploymentCtx?.contractState
+                        ? deploymentCtx?.contractState?.stAssetMinted /
+                          SCALE_FACTOR
+                        : 0}
                       sttDUST
                     </p>
                   )}
@@ -141,14 +151,17 @@ const Dashboard = () => {
                       <DollarSign className="w-5 h-5 text-emerald-400" />
                     </div>
                     <h3 className="text-sm font-medium text-gray-300">
-                        Stake total
+                      Stake total
                     </h3>
                   </div>
                   {deploymentCtx?.isJoining ? (
                     <div className="h-9 w-32 bg-emerald-500/10 animate-pulse rounded" />
                   ) : (
                     <p className="text-3xl font-bold text-white mb-1">
-                      {deploymentCtx?.contractState ? (deploymentCtx?.contractState?.depositAmount / SCALE_FACTOR) : 0 } {" "}
+                      {deploymentCtx?.contractState
+                        ? deploymentCtx?.contractState?.depositAmount /
+                          SCALE_FACTOR
+                        : 0}{" "}
                       tDUST
                     </p>
                   )}
@@ -167,7 +180,10 @@ const Dashboard = () => {
                     <div className="h-9 w-32 bg-amber-500/10 animate-pulse rounded" />
                   ) : (
                     <p className="text-3xl font-bold text-white mb-1">
-                      {deploymentCtx?.contractState ? (deploymentCtx?.contractState?.redeemable / SCALE_FACTOR) : 0} {" "}
+                      {deploymentCtx?.contractState
+                        ? deploymentCtx?.contractState?.redeemable /
+                          SCALE_FACTOR
+                        : 0}{" "}
                       tDUST
                     </p>
                   )}
@@ -187,9 +203,6 @@ const Dashboard = () => {
                   Pools
                 </h2>
               </div>
-              <h2 className="text-2xl md:text-3xl font-bold bg-linear-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
-                Pools
-              </h2>
             </div>
             <div className="flex flex-col justify-center items-center w-full gap-4">
               <PoolCard
@@ -288,23 +301,6 @@ const Dashboard = () => {
                   </>
                 )}
               </div>
-            </div>
-          </div>
-
-          {/* Charts */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="glass glass-hover rounded-2xl p-6 border border-border/50">
-              <h3 className="text-xl font-semibold mb-6 flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-accent glow-accent" />
-                Staking Growth
-              </h3>
-            </div>
-
-            <div className="glass glass-hover rounded-2xl p-6 border border-border/50">
-              <h3 className="text-xl font-semibold mb-6 flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-accent glow-accent" />
-                Weekly Rewards
-              </h3>
             </div>
           </div>
         </div>
